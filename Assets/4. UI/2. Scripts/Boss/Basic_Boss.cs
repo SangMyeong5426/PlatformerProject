@@ -1,17 +1,17 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Basic_Boss : Monster_Stats
 {
-    //public float Monster_Hp = 10f;//Ã¼·Â
-    //public float Monster_Damage = 1f; // °ø°İ·Â
-    public GameObject DashPos; // ´ë½¬ÇÒ¶§ »ı±â´Â Äİ¶óÀÌ´õ(º¸½º Àü¹æ¿¡¸¸ »ı±è)
-    public float speed; //´ë½¬ ¼Óµµ º¯¼ö 
+    //public float Monster_Hp = 10f;//ì²´ë ¥
+    //public float Monster_Damage = 1f; // ê³µê²©ë ¥
+    public GameObject DashPos; // ëŒ€ì‰¬í• ë•Œ ìƒê¸°ëŠ” ì½œë¼ì´ë”(ë³´ìŠ¤ ì „ë°©ì—ë§Œ ìƒê¹€)
+    public float speed; //ëŒ€ì‰¬ ì†ë„ ë³€ìˆ˜ 
     //public GameObject Child_anim;
     public bool isDash;
     
-    // ½ºÅ³ °ø°İ·Â º¯¼ö
+    // ìŠ¤í‚¬ ê³µê²©ë ¥ ë³€ìˆ˜
     public int EarthBullet_Damage = 1;
 
     public int IceBullet_Damage = 1;
@@ -77,21 +77,21 @@ public class Basic_Boss : Monster_Stats
         }
 
     }
-    protected virtual void Collider_Atk() // ÅÚÆ÷ °ø°İ ÇÃ·¹ÀÌ¾îÀÇ Ã¼·ÂÀ» ±ğÀ½
+    protected virtual void Collider_Atk() // í…”í¬ ê³µê²© í”Œë ˆì´ì–´ì˜ ì²´ë ¥ì„ ê¹ìŒ
     {
         Collider2D collider2d = Physics2D.OverlapCircle(Attack_Pos.position, Attack_Radius, P_Layer); 
-        // Attack_Pos ¿ÀºêÁ§Æ®·Î Æ÷Áö¼Ç ÁöÁ¤, Attack_Radius °ø°İ ¹üÀ§¸¦ ÁöÁ¤
-        // ÀÎ½ºÆåÅÍ¿¡¼­ P_Layer¿¡ Player ·¹ÀÌ¾î·Î ÁöÁ¤
+        // Attack_Pos ì˜¤ë¸Œì íŠ¸ë¡œ í¬ì§€ì…˜ ì§€ì •, Attack_Radius ê³µê²© ë²”ìœ„ë¥¼ ì§€ì •
+        // ì¸ìŠ¤í™í„°ì—ì„œ P_Layerì— Player ë ˆì´ì–´ë¡œ ì§€ì •
 
         if (collider2d)
         {
-            if (player_Hp != null) // ÆòÅ¸ °ø°İ - ±âº» °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌº¥Æ®¿¡ Collider()ÇÔ¼ö Ãß°¡
+            if (player_Hp != null) // í‰íƒ€ ê³µê²© - ê¸°ë³¸ ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ì— Collider()í•¨ìˆ˜ ì¶”ê°€
             {
                 Debug.Log("PlayerHP =" + (player_Hp.currentHealth - Monster_Damage));
                 player_Hp.TakeDamage(Monster_Damage);
-                // Ã¼·Â °¨¼Ò
+                // ì²´ë ¥ ê°ì†Œ
             }
-/*            else if (isDash) // ´ë½¬ °ø°İ - ´Ş¸®´Â ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌº¥Æ®¿¡ ¸Ç ¾Õ¿¡ Collider()ÇÔ¼ö Ãß°¡ + ´Ş¸®´Â ¾Ö´Ï¸ŞÀÌ¼Ç ½ºÇÇµå 0.7·Î ÁöÁ¤
+/*            else if (isDash) // ëŒ€ì‰¬ ê³µê²© - ë‹¬ë¦¬ëŠ” ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ì— ë§¨ ì•ì— Collider()í•¨ìˆ˜ ì¶”ê°€ + ë‹¬ë¦¬ëŠ” ì• ë‹ˆë©”ì´ì…˜ ìŠ¤í”¼ë“œ 0.7ë¡œ ì§€ì •
             {
                 Debug.Log("PlayerHP =" + (player_Hp.currentHealth - Dash_Damage));
                 player_Hp.TakeDamage(Dash_Damage);
@@ -99,15 +99,15 @@ public class Basic_Boss : Monster_Stats
         }
     }
 
-    protected virtual void Collider_Dash() // ÅÚÆ÷ °ø°İ ÇÃ·¹ÀÌ¾îÀÇ Ã¼·ÂÀ» ±ğÀ½
+    protected virtual void Collider_Dash() // í…”í¬ ê³µê²© í”Œë ˆì´ì–´ì˜ ì²´ë ¥ì„ ê¹ìŒ
     {
         Collider2D collider2d = Physics2D.OverlapCircle(Attack_Pos.position, Attack_Radius, P_Layer);
-        // Attack_Pos ¿ÀºêÁ§Æ®·Î Æ÷Áö¼Ç ÁöÁ¤, Attack_Radius °ø°İ ¹üÀ§¸¦ ÁöÁ¤
-        // ÀÎ½ºÆåÅÍ¿¡¼­ P_Layer¿¡ Player ·¹ÀÌ¾î·Î ÁöÁ¤
+        // Attack_Pos ì˜¤ë¸Œì íŠ¸ë¡œ í¬ì§€ì…˜ ì§€ì •, Attack_Radius ê³µê²© ë²”ìœ„ë¥¼ ì§€ì •
+        // ì¸ìŠ¤í™í„°ì—ì„œ P_Layerì— Player ë ˆì´ì–´ë¡œ ì§€ì •
 
         if (collider2d)
         {
-            if (isDash) // ´ë½¬ °ø°İ - ´Ş¸®´Â ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌº¥Æ®¿¡ ¸Ç ¾Õ¿¡ Collider()ÇÔ¼ö Ãß°¡ + ´Ş¸®´Â ¾Ö´Ï¸ŞÀÌ¼Ç ½ºÇÇµå 0.7·Î ÁöÁ¤
+            if (isDash) // ëŒ€ì‰¬ ê³µê²© - ë‹¬ë¦¬ëŠ” ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ì— ë§¨ ì•ì— Collider()í•¨ìˆ˜ ì¶”ê°€ + ë‹¬ë¦¬ëŠ” ì• ë‹ˆë©”ì´ì…˜ ìŠ¤í”¼ë“œ 0.7ë¡œ ì§€ì •
             {
                 Debug.Log("PlayerHP =" + (player_Hp.currentHealth - Dash_Damage));
                 player_Hp.TakeDamage(Dash_Damage);
@@ -117,7 +117,7 @@ public class Basic_Boss : Monster_Stats
     }
     private void OnDrawGizmosSelected()
     {
-        // ¸ó½ºÅÍ ÁÖº¯¿¡ °ø°İ ¹üÀ§¸¦ ³ªÅ¸³»´Â ¿ø ±×¸®±â
+        // ëª¬ìŠ¤í„° ì£¼ë³€ì— ê³µê²© ë²”ìœ„ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ì› ê·¸ë¦¬ê¸°
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(Attack_Pos.position, Attack_Radius);
     }

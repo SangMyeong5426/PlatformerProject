@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +16,7 @@ public class Monster_Stats : MonoBehaviour
 
     public bool MonsterDie = false;
 
-    public bool Boss_Mode = false; // ¸ğµå º¸½º¸¸ true·Î ÁöÁ¤ 
+    public bool Boss_Mode = false; // ëª¨ë“œ ë³´ìŠ¤ë§Œ trueë¡œ ì§€ì • 
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -34,7 +34,7 @@ public class Monster_Stats : MonoBehaviour
     }
 
     
-    public void Monster_TakeDamage(int damage) // ÇÃ·¹ÀÌ¾îÀÇ µ¥¹ÌÁö¸¦ ¹Ş¾Æ¿Í¼­ ¸ó½ºÅÍÀÇ ÇöÀç Ã¼·ÂÀ» ±ğÀ½
+    public void Monster_TakeDamage(int damage) // í”Œë ˆì´ì–´ì˜ ë°ë¯¸ì§€ë¥¼ ë°›ì•„ì™€ì„œ ëª¬ìŠ¤í„°ì˜ í˜„ì¬ ì²´ë ¥ì„ ê¹ìŒ
     {
         Monster_currentHp -= damage;
         if (Monster_currentHp <= 0)
@@ -45,8 +45,8 @@ public class Monster_Stats : MonoBehaviour
             EnemyCountManager.instance.KillMonsterCount++;
 
             //Destroy(gameObject, 1.2f);
-            //DIe ¾Ö´Ô ½ÇÇà ¹× »èÁ¦
-            Debug.Log("»ç¸Á");
+            //DIe ì• ë‹˜ ì‹¤í–‰ ë° ì‚­ì œ
+            Debug.Log("ì‚¬ë§");
         }
 
         if (Boss_Mode)

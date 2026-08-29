@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +7,7 @@ public class Fire_Boss : Basic_Boss
     public Transform BreathPos, MeteorPos;
     public GameObject BreathPrepab, MeteorPrepab;
 
-    public AudioClip[] clip; // 0 = ºÒ ÆòÅ¸, 1 = ºê·¹½º, 2 = ¸ŞÅ×¿À
+    public AudioClip[] clip; // 0 = ë¶ˆ í‰íƒ€, 1 = ë¸Œë ˆìŠ¤, 2 = ë©”í…Œì˜¤
     protected override void Start()
     {
         base.Start();
@@ -33,11 +33,11 @@ public class Fire_Boss : Basic_Boss
 
     IEnumerator BossDash()
     {
-        base.LookPlayer();//ÇÃ·¹ÀÌ¾î ¹æÇâ ¹Ù¶óº¸±â
+        base.LookPlayer();//í”Œë ˆì´ì–´ ë°©í–¥ ë°”ë¼ë³´ê¸°
         isDash = true;
         DashPos.SetActive(true);
-        yield return new WaitForSeconds(1.5f); //ÆĞÅÏ ÇÇÇÒ ½Ã°£
-        transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime); // º¸½ºÀü¹æ¿¡ DashDir¶ó´Â ºó ¿ÀºêÁ§Æ® »ı¼ºÇØ¼­ ÃßÀû(Àü¹æÀ¸·Î µ¹ÁøÇÏ°Ô²û) Å¸°Ù Æ÷Áö¼ÇÀ¸·Î ÇÏ¸é ÀÌ»óÇÏ°Ô ¾ÈµÊ
+        yield return new WaitForSeconds(1.5f); //íŒ¨í„´ í”¼í•  ì‹œê°„
+        transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime); // ë³´ìŠ¤ì „ë°©ì— DashDirë¼ëŠ” ë¹ˆ ì˜¤ë¸Œì íŠ¸ ìƒì„±í•´ì„œ ì¶”ì (ì „ë°©ìœ¼ë¡œ ëŒì§„í•˜ê²Œë”) íƒ€ê²Ÿ í¬ì§€ì…˜ìœ¼ë¡œ í•˜ë©´ ì´ìƒí•˜ê²Œ ì•ˆë¨
         yield return new WaitForSeconds(2.5f);
         isDash = false;
         anim.SetBool("Dash", false);
@@ -57,7 +57,7 @@ public class Fire_Boss : Basic_Boss
     }
     IEnumerator RandomPattern()
     {
-        yield return new WaitForSeconds(2.0f); //ÆĞÅÏ »çÀÌ¿¡ ³ª¿À´Â °æÁ÷ ½Ã°£
+        yield return new WaitForSeconds(2.0f); //íŒ¨í„´ ì‚¬ì´ì— ë‚˜ì˜¤ëŠ” ê²½ì§ ì‹œê°„
         if (!MonsterDie)
         {
             int ranPattern = Random.Range(0, 4);

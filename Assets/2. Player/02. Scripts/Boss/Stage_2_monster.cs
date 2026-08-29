@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ public class Stage_2_monster : Basic_Boss
     public GameObject Attack_Skill_2, Ice_Arrow, Pre_Ice_Spike;
     public Transform self;
     public Transform Skill_pos_2, Ice_Arrow_pos;
-    public AudioClip[] clip; // 0 = ¾óÀ½ °­Å¸, 1 = ¾óÀ½ ½½·¥
+    public AudioClip[] clip; // 0 = ì–¼ìŒ ê°•íƒ€, 1 = ì–¼ìŒ ìŠ¬ë¨
 
     //public Transform self_tr;
     //public Vector2 monster_boxSize;
@@ -48,7 +48,7 @@ public class Stage_2_monster : Basic_Boss
 
     IEnumerator RandomPattern()
     {
-        yield return new WaitForSeconds(2.0f); //ÆĞÅÏ »çÀÌ¿¡ ³ª¿À´Â °æÁ÷ ½Ã°£
+        yield return new WaitForSeconds(2.0f); //íŒ¨í„´ ì‚¬ì´ì— ë‚˜ì˜¤ëŠ” ê²½ì§ ì‹œê°„
         if (!MonsterDie)
         {
             int ranPattern = Random.Range(0, 4);
@@ -74,19 +74,19 @@ public class Stage_2_monster : Basic_Boss
     IEnumerator Ice_Bullet()
     {
         base.LookPlayer();
-        anim.SetBool("Attack", true); // ¾Ö´Ï¸ŞÀÌ¼Ç ½ÇÇà
+        anim.SetBool("Attack", true); // ì• ë‹ˆë©”ì´ì…˜ ì‹¤í–‰
         SfxManger.instance.SfxPlay("Ice_Skill_1", clip[0]);
 
-        /*yield return new WaitForSeconds(1f); // 1ÃÊµÚ¿¡
-        GameObject Skill_1_pos = Instantiate(Pre_Ice_Spike, Ice_Arrow_pos.position, Quaternion.Euler(0, 0, 0)); // ÇÃ·¹ÀÌ¾î À§Ä¡¿¡ ÁØºñ ½ºÅ³¶ß°í
-        anim.SetBool("Attack", false); // ¾Ö´Ï¸ŞÀÌ¼Ç Idle·Î
+        /*yield return new WaitForSeconds(1f); // 1ì´ˆë’¤ì—
+        GameObject Skill_1_pos = Instantiate(Pre_Ice_Spike, Ice_Arrow_pos.position, Quaternion.Euler(0, 0, 0)); // í”Œë ˆì´ì–´ ìœ„ì¹˜ì— ì¤€ë¹„ ìŠ¤í‚¬ëœ¨ê³ 
+        anim.SetBool("Attack", false); // ì• ë‹ˆë©”ì´ì…˜ Idleë¡œ
         */
-        yield return new WaitForSeconds(0.5f); // 1ÃÊµÚ¿¡
+        yield return new WaitForSeconds(0.5f); // 1ì´ˆë’¤ì—
 
-        GameObject Skill_1 = Instantiate(Ice_Arrow, Ice_Arrow_pos.transform.position, Quaternion.Euler(0, 0, 0)); // ÇÃ·¹ÀÌ¾î À§Ä¡¿¡ ½ºÅ³ ¶ä
+        GameObject Skill_1 = Instantiate(Ice_Arrow, Ice_Arrow_pos.transform.position, Quaternion.Euler(0, 0, 0)); // í”Œë ˆì´ì–´ ìœ„ì¹˜ì— ìŠ¤í‚¬ ëœ¸
         anim.SetBool("Attack", false);
-        //Destroy(Skill_1_pos); // ÁØºñ ½ºÅ³ »èÁ¦
-        Destroy(Skill_1, 0.8f); // 1ÃÊµÚ¿¡ »èÁ¦
+        //Destroy(Skill_1_pos); // ì¤€ë¹„ ìŠ¤í‚¬ ì‚­ì œ
+        Destroy(Skill_1, 0.8f); // 1ì´ˆë’¤ì— ì‚­ì œ
         StartCoroutine(RandomPattern());
     }
 
@@ -97,8 +97,8 @@ public class Stage_2_monster : Basic_Boss
         
         anim.SetBool("Attack_2", true);
         SfxManger.instance.SfxPlay("Ice_Skill_explosion", clip[1]);
-        yield return new WaitForSeconds(1f); // 1ÃÊ µÚ¿¡
-        GameObject Skill_2 = Instantiate(Attack_Skill_2, Skill_pos_2.position, Skill_pos_2.rotation); //ÀÎ½ºÅÏ½Ã¿¡ÀÌÆ®
+        yield return new WaitForSeconds(1f); // 1ì´ˆ ë’¤ì—
+        GameObject Skill_2 = Instantiate(Attack_Skill_2, Skill_pos_2.position, Skill_pos_2.rotation); //ì¸ìŠ¤í„´ì‹œì—ì´íŠ¸
         Destroy(Skill_2, 2f);
         anim.SetBool("Attack_2", false);
         StartCoroutine(RandomPattern());
@@ -117,11 +117,11 @@ public class Stage_2_monster : Basic_Boss
 
     IEnumerator BossDash()
     {
-        base.LookPlayer();//ÇÃ·¹ÀÌ¾î ¹æÇâ ¹Ù¶óº¸±â
+        base.LookPlayer();//í”Œë ˆì´ì–´ ë°©í–¥ ë°”ë¼ë³´ê¸°
         isDash = true;
         DashPos.SetActive(true);
-        yield return new WaitForSeconds(1.5f); //ÆĞÅÏ ÇÇÇÒ ½Ã°£
-        transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime); // º¸½ºÀü¹æ¿¡ DashDir¶ó´Â ºó ¿ÀºêÁ§Æ® »ı¼ºÇØ¼­ ÃßÀû(Àü¹æÀ¸·Î µ¹ÁøÇÏ°Ô²û) Å¸°Ù Æ÷Áö¼ÇÀ¸·Î ÇÏ¸é ÀÌ»óÇÏ°Ô ¾ÈµÊ
+        yield return new WaitForSeconds(1.5f); //íŒ¨í„´ í”¼í•  ì‹œê°„
+        transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime); // ë³´ìŠ¤ì „ë°©ì— DashDirë¼ëŠ” ë¹ˆ ì˜¤ë¸Œì íŠ¸ ìƒì„±í•´ì„œ ì¶”ì (ì „ë°©ìœ¼ë¡œ ëŒì§„í•˜ê²Œë”) íƒ€ê²Ÿ í¬ì§€ì…˜ìœ¼ë¡œ í•˜ë©´ ì´ìƒí•˜ê²Œ ì•ˆë¨
         yield return new WaitForSeconds(2.5f);
         isDash = false;
         anim.SetBool("Run", false);
@@ -151,14 +151,14 @@ public class Stage_2_monster : Basic_Boss
                 {
 
                     player_Hp.TakeDamage(Monster_Damage);
-                    // Ã¼·Â °¨¼Ò
+                    // ì²´ë ¥ ê°ì†Œ
 
                 }
             }
 
     }*/
 
-    private void OnDrawGizmos() // ÃßÀû ¹üÀ§
+    private void OnDrawGizmos() // ì¶”ì  ë²”ìœ„
     {
         Gizmos.color = Color.red;
         //Gizmos.DrawWireSphere(transform.position, Radius);
