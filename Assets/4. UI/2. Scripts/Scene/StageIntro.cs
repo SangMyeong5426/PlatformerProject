@@ -8,11 +8,6 @@ public class StageIntro : MonoBehaviour
 {
     public GameObject StageInt;
     public TMP_Text StageText;
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {

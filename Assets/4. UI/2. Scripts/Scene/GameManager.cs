@@ -48,11 +48,6 @@ public class GameManager : MonoBehaviour
             Main_Image_KOR.SetActive(true);
         }
     }
-    void Start()
-    {
-        
-    }
-
     public void SelectStart() //게임 시작 함수 (시작 버튼을 누르면 실행됨)
     {
         LoadingSceneController.LoadScene("UI_Select");

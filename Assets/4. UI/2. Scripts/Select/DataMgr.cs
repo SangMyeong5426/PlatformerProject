@@ -18,7 +18,4 @@ public class DataMgr : MonoBehaviour
     }
     public Character currentCharacter;
 
-    private void Update()
-    {
-    }
 }

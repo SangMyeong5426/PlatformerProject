@@ -11,11 +11,6 @@ public class NPCTri3 : MonoBehaviour
     {
         bt = GetComponent<B_Test>();
     }
-    void Update()
-    {
-
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (bt.Boss_seal == true)

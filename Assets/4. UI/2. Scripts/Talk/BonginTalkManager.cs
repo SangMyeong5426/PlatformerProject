@@ -20,10 +20,6 @@ public class BonginTalkManager : MonoBehaviour
     public int CharCodecopy;
     public static int DataNum;
 
-    private void Start()
-    {
-        
-    }
     void Awake()
     {
         talkData = new Dictionary<int, string>();

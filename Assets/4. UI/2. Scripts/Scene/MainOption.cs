@@ -8,12 +8,6 @@ public class MainOption : MonoBehaviour
 
     public GameObject pauseMenuCanvas;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void OPTIONOn()
     {
         pauseMenuCanvas.SetActive(true);

@@ -9,9 +9,4 @@ public class CurMapName : MonoBehaviour
 {
     public string CurMapname;
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }

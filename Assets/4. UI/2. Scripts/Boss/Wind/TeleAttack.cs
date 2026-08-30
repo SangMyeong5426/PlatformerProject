@@ -12,16 +12,6 @@ public class TeleAttack : MonoBehaviour
         windboss = GameObject.FindObjectOfType<Wind_Boss>();
 
     }
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     private void OnTriggerEnter2D(Collider2D collision) // 브레스 공격 딜레이
     {
         if (collision.CompareTag("Player"))

@@ -13,11 +13,6 @@ public class Tor : MonoBehaviour
         windboss = GameObject.FindObjectOfType<Wind_Boss>();
         Destroy(gameObject, 4f);
     }
-    void Start()
-    {
-
-    }
-
     // Update is called once per frame
     void Update()
     {

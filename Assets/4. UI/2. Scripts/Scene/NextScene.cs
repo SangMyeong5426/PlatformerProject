@@ -7,11 +7,6 @@ public class NextScene : MonoBehaviour
 {
     public string NextMapName;
     public CurMapName Player;
-    void Start()
-    {
-
-    }
-
     // Update is called once per frame
     void Update()
     {

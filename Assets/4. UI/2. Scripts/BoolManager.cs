@@ -31,8 +31,4 @@ public class BoolManager : MonoBehaviour
         Ending = false;
 
     }
-    void Update()
-    {
-
-    }
 }

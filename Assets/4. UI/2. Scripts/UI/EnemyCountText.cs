@@ -12,10 +12,6 @@ public class EnemyCountText : MonoBehaviour
     public TMP_Text enemycounttext;
 
     public int curkillcount;
-    private void Start()
-    {
-        
-    }
     void Update()
     {
         ILocalesProvider availableLocales = LocalizationSettings.AvailableLocales;

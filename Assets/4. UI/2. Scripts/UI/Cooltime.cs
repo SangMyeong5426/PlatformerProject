@@ -15,11 +15,6 @@ public class Cooltime : MonoBehaviour
 
 
     private float currentCooldown;
-    void Start()
-    {
-        //image_fill.fillAmount = 1;
-    }
-
     void Update()
     {
         currentCooldown = Player_Move.Dash_timer;
