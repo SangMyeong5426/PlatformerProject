@@ -62199,10 +62199,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1380491304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72f6ac8e9dabdbb4a992ed2478e873ad, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b9bafc00564bdf4b98bf35ad1dd7f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TalkPannel: {fileID: 1677664619}
+  channel: 2
+  maxDataNum: 3
+  requireBossSeal: 1
 --- !u!114 &1380491309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74911,10 +74914,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2089489809}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47485e58820d78c41a3f7b0cf4e3ad05, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b9bafc00564bdf4b98bf35ad1dd7f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TalkPannel: {fileID: 1618167907}
+  channel: 3
+  maxDataNum: 2
+  requireBossSeal: 0
 --- !u!1 &2095334539
 GameObject:
   m_ObjectHideFlags: 0

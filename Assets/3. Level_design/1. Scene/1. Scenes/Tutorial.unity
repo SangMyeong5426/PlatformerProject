@@ -65904,10 +65904,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 288468777}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3751d417911060741bf8d9580b717486, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b9bafc00564bdf4b98bf35ad1dd7f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TalkPannel: {fileID: 1089813866}
+  channel: 1
+  maxDataNum: 4
+  requireBossSeal: 0
 --- !u!70 &288468779
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -69036,10 +69039,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 579209755}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d01d8467b07aaf4dba088e104afa4a4, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b9bafc00564bdf4b98bf35ad1dd7f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TalkPannel: {fileID: 493347571}
+  channel: 0
+  maxDataNum: 14
+  requireBossSeal: 0
 --- !u!1 &586334719
 GameObject:
   m_ObjectHideFlags: 0
