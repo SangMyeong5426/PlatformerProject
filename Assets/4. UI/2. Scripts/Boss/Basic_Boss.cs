@@ -120,13 +120,14 @@ public class Basic_Boss : Monster_Stats
         player_Hp = Player.GetComponent<AllUnits.Unit>();
     }
 
+    bool defeated; // OnBossDefeated() 를 한 번만 실행시키는 가드
+
     // Update is called once per frame
     // 돌진 이동과 사망 처리는 4종이 동일해 여기서 처리한다.
     // 스테이지 클리어 플래그만 SetStageCleared()로 갈라진다.
     protected override void Update()
     {
         base.Update();
-        BossDie();
 
         if (isDash == true)
         {
@@ -134,24 +135,23 @@ public class Basic_Boss : Monster_Stats
             anim.SetBool(DashAnimParam, true);
         }
 
-        if (MonsterDie)
+        // 사망 처리는 죽는 프레임에 한 번만 돈다. 돌진 블록보다 뒤에 두어야
+        // 죽는 프레임의 이동 1회분이 기존과 같이 유지된다.
+        if (MonsterDie && !defeated)
         {
-            SetStageCleared();
-            isDash = false;
+            defeated = true;
+            OnBossDefeated();
         }
     }
 
-    void BossDie()
+    // 사망 시 1회 실행. 기존에는 이 처리가 매 프레임 돌면서 GetComponent 를
+    // 2회씩 반복 호출했다.
+    protected virtual void OnBossDefeated()
     {
-        if (MonsterDie)
-        {
-            Collider2D coll = GetComponent<Collider2D>();
-            Rigidbody2D rb = GetComponent<Rigidbody2D>();
-            rb.simulated = false;
-            coll.enabled = false;
-
-            return;
-        }
+        isDash = false;
+        GetComponent<Rigidbody2D>().simulated = false;
+        GetComponent<Collider2D>().enabled = false;
+        SetStageCleared();
     }
     public void LookPlayer()
     {
