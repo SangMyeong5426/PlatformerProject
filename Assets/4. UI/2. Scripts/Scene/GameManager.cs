@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,12 +11,12 @@ using UnityEngine.Localization.Settings;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance; //½Ì±ÛÅÏ Ã³¸®¿ë ÀÎ½ºÅÏ½º º¯¼ö ¼±¾ğ
-    public TMP_Text txtTitle, btnStartText, btnOptionText, btnQuitText; //¸Ş½ÃÁö ÅØ½ºÆ®, Å¸ÀÓ ÅØ½ºÆ®
-    public Button btnStart; //½ÃÀÛ ¹öÆ°   
-    public Button btnOption; //¿É¼Ç ¹öÆ°
-    public Button btnBack; //¸ŞÀÎ¾ÀÀÌµ¿ ¹öÆ°
-    public Button btnEscpae; //³¢ÀÓ Å»Ãâ ¹öÆ° 
+    public static GameManager instance; //ì‹±ê¸€í„´ ì²˜ë¦¬ìš© ì¸ìŠ¤í„´ìŠ¤ ë³€ìˆ˜ ì„ ì–¸
+    public TMP_Text txtTitle, btnStartText, btnOptionText, btnQuitText; //ë©”ì‹œì§€ í…ìŠ¤íŠ¸, íƒ€ì„ í…ìŠ¤íŠ¸
+    public Button btnStart; //ì‹œì‘ ë²„íŠ¼   
+    public Button btnOption; //ì˜µì…˜ ë²„íŠ¼
+    public Button btnBack; //ë©”ì¸ì”¬ì´ë™ ë²„íŠ¼
+    public Button btnEscpae; //ë¼ì„ íƒˆì¶œ ë²„íŠ¼ 
     public GameObject LevelSel;
     public GameObject char1, char2, char3;
     public bool Eng, Kr;
@@ -27,9 +27,9 @@ public class GameManager : MonoBehaviour
 
     private void Awake() 
     {
-        //°ÔÀÓ¸Å´ÏÀú¸¦ ½Ì±ÛÅÏ Ã³¸®
-        if (instance == null) instance = this; //ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é ÇöÀç ÀÎ½ºÅÏ½º·Î 
-        else Destroy(this);                    //ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏ¸é ÇöÀç ÀÎ½ºÅÏ½º¸¦ »èÁ¦ 
+        //ê²Œì„ë§¤ë‹ˆì €ë¥¼ ì‹±ê¸€í„´ ì²˜ë¦¬
+        if (instance == null) instance = this; //ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ í˜„ì¬ ì¸ìŠ¤í„´ìŠ¤ë¡œ 
+        else Destroy(this);                    //ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ë©´ í˜„ì¬ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì‚­ì œ 
     }
 
 
@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public void SelectStart() //°ÔÀÓ ½ÃÀÛ ÇÔ¼ö (½ÃÀÛ ¹öÆ°À» ´©¸£¸é ½ÇÇàµÊ)
+    public void SelectStart() //ê²Œì„ ì‹œì‘ í•¨ìˆ˜ (ì‹œì‘ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì‹¤í–‰ë¨)
     {
         LoadingSceneController.LoadScene("UI_Select");
         BoolManager.FirstStageBossDie = false;
@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
         BoolManager.ThirdStageBossDie = false;
         BoolManager.FourthStageBossDie = false;
     }
-    public void TutorialStart() //°ÔÀÓ ½ÃÀÛ ÇÔ¼ö (½ÃÀÛ ¹öÆ°À» ´©¸£¸é ½ÇÇàµÊ)
+    public void TutorialStart() //ê²Œì„ ì‹œì‘ í•¨ìˆ˜ (ì‹œì‘ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì‹¤í–‰ë¨)
     {
         LoadingSceneController.LoadScene("Tutorial");
 
@@ -74,22 +74,22 @@ public class GameManager : MonoBehaviour
     {
         LevelSel.SetActive(true);
     }
-/*    public void TutorialStart_Esay() //°ÔÀÓ ½ÃÀÛ ÇÔ¼ö (½ÃÀÛ ¹öÆ°À» ´©¸£¸é ½ÇÇàµÊ)
+/*    public void TutorialStart_Esay() //ê²Œì„ ì‹œì‘ í•¨ìˆ˜ (ì‹œì‘ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì‹¤í–‰ë¨)
     {   
         LoadingSceneController.LoadScene("Tutorial");
-        Debug.Log("°ÔÀÓ½ÃÀÛ");
+        Debug.Log("ê²Œì„ì‹œì‘");
         BoolManager.PlayerDie = false;
         Easy = true;
     }
-    public void TutorialStart_Hard() //°ÔÀÓ ½ÃÀÛ ÇÔ¼ö (½ÃÀÛ ¹öÆ°À» ´©¸£¸é ½ÇÇàµÊ)
+    public void TutorialStart_Hard() //ê²Œì„ ì‹œì‘ í•¨ìˆ˜ (ì‹œì‘ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì‹¤í–‰ë¨)
     {
         LoadingSceneController.LoadScene("Tutorial");
-        Debug.Log("°ÔÀÓ½ÃÀÛ");
+        Debug.Log("ê²Œì„ì‹œì‘");
         BoolManager.PlayerDie = false;
         Hard = true;
     }*/
 
-    public void Quit() //°ÔÀÓ Á¤Áö ÇÔ¼ö (QUIT ¹öÆ°À» ´©¸£¸é ½ÇÇà)
+    public void Quit() //ê²Œì„ ì •ì§€ í•¨ìˆ˜ (QUIT ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì‹¤í–‰)
     {
         Application.Quit();
     }
@@ -97,7 +97,7 @@ public class GameManager : MonoBehaviour
     public void GameMain()
     {
         LoadingSceneController.LoadScene("UI_Main");
-        Debug.Log("¸ŞÀÎ¸Ş´º·Î ÀÌµ¿");
+        Debug.Log("ë©”ì¸ë©”ë‰´ë¡œ ì´ë™");
         BoolManager.PlayerDie = false;
         UI_Test.instance_ui.Resume();
     }

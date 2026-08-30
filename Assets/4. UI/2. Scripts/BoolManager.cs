@@ -1,10 +1,10 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BoolManager : MonoBehaviour
 {   
-    public static bool FirstStageBossDie, SecondStageBossDie, ThirdStageBossDie, FourthStageBossDie; //º¸½º°¡ Á×À» °æ¿ì true·Î º¯°æ
+    public static bool FirstStageBossDie, SecondStageBossDie, ThirdStageBossDie, FourthStageBossDie; //ë³´ìŠ¤ê°€ ì£½ì„ ê²½ìš° trueë¡œ ë³€ê²½
     public static bool IsTutorial;
     public static bool IsBongin;
     public static bool PlayerDie;
