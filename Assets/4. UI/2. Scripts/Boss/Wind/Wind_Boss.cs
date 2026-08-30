@@ -9,10 +9,33 @@ public class Wind_Boss : Basic_Boss
     public GameObject bullet;
 
     public AudioClip[] clip; // 0 = 토네이도, 1 = 탄막
+
+    // ── 공통 골격에 넘기는 값 ──────────────────────────────
+    // DashAnimParam("Dash"), PatternInterval(2.0), TeleportPreDelay(0.5) 는
+    // 기본값과 같아 재정의하지 않는다. 텔레포트 후딜만 1.0초로 다르다.
+
+    protected override float TeleportPostDelay => 1.0f;
+
+    protected override System.Func<IEnumerator>[] BuildPatterns()
+    {
+        return new System.Func<IEnumerator>[]
+        {
+            Teleport,     // 0
+            Dash,         // 1
+            SpawnTornado, // 2
+            SpawnTornado, // 3 - 2번과 동일. 토네이도가 50% 확률로 나오는 기존 동작을 그대로 둔다
+        };
+    }
+
+    protected override void SetStageCleared()
+    {
+        BoolManager.FourthStageBossDie = true;
+    }
+
     protected override void Start()
     {
         base.Start();
-        StartCoroutine(RandomPattern());
+        StartCoroutine(PatternLoop());
     }
 
     // Update is called once per frame
@@ -21,62 +44,15 @@ public class Wind_Boss : Basic_Boss
         if (isDash == true)
         {
             transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime);
-            anim.SetBool("Dash", true);
+            anim.SetBool(DashAnimParam, true);
         }
 
         BulletPos.transform.rotation = transform.rotation;
 
         if (MonsterDie)
         {
-            BoolManager.FourthStageBossDie = true;
+            SetStageCleared();
             isDash = false;
-        }
-    }
-
-    IEnumerator BossDash()
-    {
-        base.LookPlayer();//플레이어 방향 바라보기
-        isDash = true;
-        DashPos.SetActive(true);
-        yield return new WaitForSeconds(1.5f); //패턴 피할 시간
-        transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime); // 보스전방에 DashDir라는 빈 오브젝트 생성해서 추적(전방으로 돌진하게끔) 타겟 포지션으로 하면 이상하게 안됨
-        yield return new WaitForSeconds(2.5f);
-        isDash = false;
-        anim.SetBool("Dash", false);
-        DashPos.SetActive(false);
-        StartCoroutine(RandomPattern());
-    }
-    IEnumerator TeleAttack()
-    {
-        transform.position = Target.transform.position;
-        yield return new WaitForSeconds(0.5f);
-        base.LookPlayer();
-        anim.SetBool("Attack", true);
-        yield return new WaitForSeconds(1f);
-        anim.SetBool("Attack", false);
-        StartCoroutine(RandomPattern());
-    }
-    IEnumerator RandomPattern()
-    {
-        yield return new WaitForSeconds(2.0f); //패턴 사이에 나오는 경직 시간
-        if (!MonsterDie)
-        {
-            int ranPattern = Random.Range(0, 4);
-            switch (ranPattern)
-            {
-                case 0:
-                    StartCoroutine(TeleAttack());
-                    break;
-                case 1:
-                    StartCoroutine(BossDash());
-                    break;
-                case 2:
-                    StartCoroutine(SpawnTornado());
-                    break;
-                case 3:
-                    StartCoroutine(SpawnTornado());
-                    break;
-            }
         }
     }
 
@@ -85,22 +61,22 @@ public class Wind_Boss : Basic_Boss
         anim.SetBool("Tornado", true);
         SfxManger.instance.SfxPlay("Wind_Skill_Tornado", clip[0]);
         yield return new WaitForSeconds(1f);
-        GameObject Tor1 = Instantiate(TornadoPrefab, Tornado1.position, Tornado1.rotation);
-        GameObject Tor2 = Instantiate(TornadoPrefab, Tornado2.position, Tornado1.rotation);
-        GameObject Tor3 = Instantiate(TornadoPrefab, Tornado3.position, Tornado1.rotation);
-        GameObject Tor4 = Instantiate(TornadoPrefab, Tornado4.position, Tornado1.rotation);
+        Instantiate(TornadoPrefab, Tornado1.position, Tornado1.rotation);
+        Instantiate(TornadoPrefab, Tornado2.position, Tornado1.rotation);
+        Instantiate(TornadoPrefab, Tornado3.position, Tornado1.rotation);
+        Instantiate(TornadoPrefab, Tornado4.position, Tornado1.rotation);
         yield return new WaitForSeconds(0.5f);
         anim.SetBool("Tornado", false);
         yield return new WaitForSeconds(3.5f);
 
-        StartCoroutine(SpawnBullet());
-
-
+        // 토네이도는 유일하게 스케줄러로 복귀하지 않고 탄막으로 이어진다.
+        // yield return 으로 감싸야 스케줄러가 연쇄 전체(10.5초)를 기다린다.
+        yield return StartCoroutine(SpawnBullet());
     }
 
     IEnumerator SpawnBullet()
     {
-        base.LookPlayer();
+        LookPlayer();
         anim.SetBool("Bullet", true);
         SfxManger.instance.SfxPlay("Wind_Skill_smallTor", clip[1]);
         yield return new WaitForSeconds(1f);
@@ -138,7 +114,5 @@ public class Wind_Boss : Basic_Boss
 
         yield return new WaitForSeconds(3f);
         anim.SetBool("Bullet", false);
-        StartCoroutine(RandomPattern());
-
     }
 }
