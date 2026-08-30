@@ -10,7 +10,6 @@ public class BoolManager : MonoBehaviour
     public static void SetBossCleared(StageId stage) { bossCleared[(int)stage] = true; }
     public static bool IsBossCleared(StageId stage) { return bossCleared[(int)stage]; }
     public static void ResetBossCleared() { System.Array.Clear(bossCleared, 0, bossCleared.Length); }
-    public static bool IsTutorial;
     public static bool IsBongin;
     public static bool PlayerDie;
     public static bool BonginCom;
