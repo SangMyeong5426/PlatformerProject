@@ -15,16 +15,12 @@ public class NextScene1 : MonoBehaviour
         mode = FindObjectOfType<Mode_Select>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        Player = FindObjectOfType<CurMapName>();
-
-    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player")
-        {   
+        {
+            // 씬을 넘나드는 플레이어라 트리거 시점에 찾는다.
+            Player = FindObjectOfType<CurMapName>();
             if(mode.Hard == true)
             {
                 Player.CurMapname = HardMapName;
