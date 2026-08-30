@@ -9,7 +9,7 @@ public class WindBossPortal : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(BoolManager.FourthStageBossDie == true)
+        if (BoolManager.IsBossCleared(StageId.Fourth))
         {
             WindBossPor.SetActive(true);
         }

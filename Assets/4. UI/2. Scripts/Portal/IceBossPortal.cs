@@ -9,7 +9,7 @@ public class IceBossPortal: MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(BoolManager.SecondStageBossDie == true)
+        if (BoolManager.IsBossCleared(StageId.Second))
         {
             IceBossPor.SetActive(true);
         }

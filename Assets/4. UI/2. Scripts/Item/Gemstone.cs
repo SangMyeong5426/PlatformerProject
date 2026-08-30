@@ -10,7 +10,7 @@ public class Gemstone : MonoBehaviour
     // Update is called once per frame
     void Update()
     {   
-        if (BoolManager.FirstStageBossDie == true)
+        if (BoolManager.IsBossCleared(StageId.First))
         {
             GroundGemimg.sprite = GroundGem;
         }
@@ -18,15 +18,15 @@ public class Gemstone : MonoBehaviour
         {
             GroundGemimg.sprite = null;
         }*/
-        if (BoolManager.SecondStageBossDie)
+        if (BoolManager.IsBossCleared(StageId.Second))
         {
             IceGemimg.sprite = IceGem;
         }
-        if (BoolManager.ThirdStageBossDie)
+        if (BoolManager.IsBossCleared(StageId.Third))
         {
             FireGemimg.sprite = FireGem;
         }
-        if (BoolManager.FourthStageBossDie)
+        if (BoolManager.IsBossCleared(StageId.Fourth))
         {
             WindGemimg.sprite = WindGem;
         }

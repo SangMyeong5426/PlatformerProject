@@ -29,10 +29,7 @@ public class Fire_Boss : Basic_Boss
         };
     }
 
-    protected override void SetStageCleared()
-    {
-        BoolManager.ThirdStageBossDie = true;
-    }
+    protected override StageId? ClearedStage => StageId.Third;
 
     protected override void Start()
     {

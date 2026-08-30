@@ -37,10 +37,7 @@ public class One_Stage_Boss : Basic_Boss
         };
     }
 
-    protected override void SetStageCleared()
-    {
-        BoolManager.FirstStageBossDie = true;
-    }
+    protected override StageId? ClearedStage => StageId.First;
 
     protected override void Start()
     {

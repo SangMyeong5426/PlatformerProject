@@ -57,8 +57,9 @@ public class Basic_Boss : Monster_Stats
         return new System.Func<IEnumerator>[0];
     }
 
-    // 사망 시 스테이지 클리어 플래그 설정
-    protected virtual void SetStageCleared() { }
+    // 이 보스가 담당하는 스테이지. 사망 시 클리어 플래그를 기록한다.
+    // 스테이지에 속하지 않는 보스(모드 보스)는 null 을 유지한다.
+    protected virtual StageId? ClearedStage => null;
 
     System.Func<IEnumerator>[] patterns;
 
@@ -124,7 +125,7 @@ public class Basic_Boss : Monster_Stats
 
     // Update is called once per frame
     // 돌진 이동과 사망 처리는 4종이 동일해 여기서 처리한다.
-    // 스테이지 클리어 플래그만 SetStageCleared()로 갈라진다.
+    // 스테이지 클리어 플래그만 ClearedStage 로 갈라진다.
     protected override void Update()
     {
         base.Update();
@@ -151,7 +152,7 @@ public class Basic_Boss : Monster_Stats
         isDash = false;
         GetComponent<Rigidbody2D>().simulated = false;
         GetComponent<Collider2D>().enabled = false;
-        SetStageCleared();
+        if (ClearedStage.HasValue) BoolManager.SetBossCleared(ClearedStage.Value);
     }
     public void LookPlayer()
     {

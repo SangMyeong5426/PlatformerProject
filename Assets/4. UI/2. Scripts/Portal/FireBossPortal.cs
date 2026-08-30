@@ -9,7 +9,7 @@ public class FireBossPortal: MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(BoolManager.ThirdStageBossDie == true)
+        if (BoolManager.IsBossCleared(StageId.Third))
         {
             FireBossPor.SetActive(true);
         }

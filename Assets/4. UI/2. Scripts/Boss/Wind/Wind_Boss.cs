@@ -27,10 +27,7 @@ public class Wind_Boss : Basic_Boss
         };
     }
 
-    protected override void SetStageCleared()
-    {
-        BoolManager.FourthStageBossDie = true;
-    }
+    protected override StageId? ClearedStage => StageId.Fourth;
 
     protected override void Start()
     {

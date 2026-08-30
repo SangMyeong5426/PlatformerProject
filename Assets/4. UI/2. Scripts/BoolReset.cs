@@ -15,10 +15,7 @@ public class BoolReset : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "UI_Main")
         {
-            BoolManager.FirstStageBossDie = false;
-            BoolManager.SecondStageBossDie = false;
-            BoolManager.ThirdStageBossDie = false;
-            BoolManager.FourthStageBossDie = false;
+            BoolManager.ResetBossCleared();
 
             BoolManager.BonginCom = false;
             BoolManager.isShake = false;

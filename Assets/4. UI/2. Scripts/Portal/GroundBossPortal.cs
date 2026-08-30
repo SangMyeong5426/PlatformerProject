@@ -9,7 +9,7 @@ public class GroundBossPortal: MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(BoolManager.FirstStageBossDie == true)
+        if (BoolManager.IsBossCleared(StageId.First))
         {
             GroundBossPor.SetActive(true);
         }

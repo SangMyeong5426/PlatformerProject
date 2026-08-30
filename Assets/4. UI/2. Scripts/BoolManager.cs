@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class BoolManager : MonoBehaviour
 {   
-    public static bool FirstStageBossDie, SecondStageBossDie, ThirdStageBossDie, FourthStageBossDie; //보스가 죽을 경우 true로 변경
+    // 스테이지별 보스 클리어 여부. 인덱스는 StageId 값과 맞춘다.
+    static readonly bool[] bossCleared = new bool[4];
+
+    public static void SetBossCleared(StageId stage) { bossCleared[(int)stage] = true; }
+    public static bool IsBossCleared(StageId stage) { return bossCleared[(int)stage]; }
+    public static void ResetBossCleared() { System.Array.Clear(bossCleared, 0, bossCleared.Length); }
     public static bool IsTutorial;
     public static bool IsBongin;
     public static bool PlayerDie;
@@ -19,10 +24,7 @@ public class BoolManager : MonoBehaviour
     }
     void Start()
     {
-        FirstStageBossDie = false;
-        SecondStageBossDie = false;
-        ThirdStageBossDie = false;
-        FourthStageBossDie = false;
+        ResetBossCleared();
         IsBongin = false;
         PlayerDie = false;
         BonginCom = false;

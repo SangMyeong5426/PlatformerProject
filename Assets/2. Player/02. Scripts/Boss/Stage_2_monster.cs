@@ -35,10 +35,7 @@ public class Stage_2_monster : Basic_Boss
         };
     }
 
-    protected override void SetStageCleared()
-    {
-        BoolManager.SecondStageBossDie = true;
-    }
+    protected override StageId? ClearedStage => StageId.Second;
 
     protected override void Start()
     {
