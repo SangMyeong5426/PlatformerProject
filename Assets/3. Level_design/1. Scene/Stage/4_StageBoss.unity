@@ -91356,10 +91356,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1210220011}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47507bd37b19a394dadf2ae190d9f188, type: 3}
+  m_Script: {fileID: 11500000, guid: 03b196ee09fc7534dbdec1831bebd28d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WindBossPor: {fileID: 977783363}
+  stage: 3
+  Portal: {fileID: 977783363}
 --- !u!1 &1278454773
 GameObject:
   m_ObjectHideFlags: 0

@@ -81822,10 +81822,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1575406050}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3c3bd4d0ef8d604397e7147a539b48b, type: 3}
+  m_Script: {fileID: 11500000, guid: 03b196ee09fc7534dbdec1831bebd28d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IceBossPor: {fileID: 1643465117}
+  stage: 1
+  Portal: {fileID: 1643465117}
 --- !u!114 &1575406058
 MonoBehaviour:
   m_ObjectHideFlags: 0

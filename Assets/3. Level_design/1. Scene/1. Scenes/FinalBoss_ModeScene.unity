@@ -35087,10 +35087,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1868225223}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 282903b0d60b06b4ea4fd9ce3b9a3e33, type: 3}
+  m_Script: {fileID: 11500000, guid: 03b196ee09fc7534dbdec1831bebd28d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FireBossPor: {fileID: 0}
+  stage: 2
+  Portal: {fileID: 0}
 --- !u!114 &1868225230
 MonoBehaviour:
   m_ObjectHideFlags: 0
