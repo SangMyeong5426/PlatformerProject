@@ -36,6 +36,80 @@ public class Basic_Boss : Monster_Stats
 
     public bool Boss_Die = false;
 
+    [Header("디버그")]
+    [Tooltip("-1이면 랜덤. 0 이상이면 해당 인덱스의 패턴만 반복 실행 (검증용)")]
+    [SerializeField] protected int debugForcePattern = -1;
+
+    // ── 보스별로 달라지는 값 ──────────────────────────────
+    // 인스펙터가 아닌 코드에서 덮어쓴다. 프리팹 입력이 필요 없어 값 누락 사고가 없다.
+
+    protected virtual string DashAnimParam => "Dash";   // 대지/얼음은 "Run"
+    protected virtual float PatternInterval => 2.0f;    // 패턴 사이 경직 시간
+    protected virtual float TeleportPreDelay => 0.5f;
+    protected virtual float TeleportPostDelay => 0.8f;
+
+    protected virtual void PlayDashSfx() { }            // 효과음 있는 보스만 재정의
+    protected virtual void PlayTeleportSfx() { }
+
+    // 각 보스의 패턴 목록. 배열 인덱스가 기존 switch의 case 번호와 같아야 한다.
+    protected virtual System.Func<IEnumerator>[] BuildPatterns()
+    {
+        return new System.Func<IEnumerator>[0];
+    }
+
+    // 사망 시 스테이지 클리어 플래그 설정
+    protected virtual void SetStageCleared() { }
+
+    System.Func<IEnumerator>[] patterns;
+
+    // ── 공통 패턴 스케줄러 ────────────────────────────────
+    // 기존에는 각 패턴이 끝에서 RandomPattern()을 다시 호출하는 재귀 구조였다.
+    // 여기서는 루프가 패턴 종료를 기다리므로, 각 패턴은 자기 일만 하고 끝내면 된다.
+    protected IEnumerator PatternLoop()
+    {
+        patterns = BuildPatterns();
+
+        while (true)
+        {
+            yield return new WaitForSeconds(PatternInterval);
+
+            if (MonsterDie) yield break;
+
+            int index = debugForcePattern >= 0
+                ? Mathf.Min(debugForcePattern, patterns.Length - 1)
+                : Random.Range(0, patterns.Length);
+
+            yield return StartCoroutine(patterns[index]());
+        }
+    }
+
+    protected IEnumerator Dash()
+    {
+        LookPlayer(); // 플레이어 방향 바라보기
+        isDash = true;
+        PlayDashSfx();
+        DashPos.SetActive(true);
+        yield return new WaitForSeconds(1.5f); // 패턴 피할 시간
+        // 실제 돌진 이동은 Update()의 isDash 블록이 담당한다.
+        // 아래 한 줄은 1프레임분만 움직이지만 기존 동작 유지를 위해 남겨둔다.
+        transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime);
+        yield return new WaitForSeconds(2.5f);
+        isDash = false;
+        anim.SetBool(DashAnimParam, false);
+        DashPos.SetActive(false);
+    }
+
+    protected IEnumerator Teleport()
+    {
+        transform.position = Target.transform.position;
+        yield return new WaitForSeconds(TeleportPreDelay);
+        LookPlayer();
+        anim.SetBool("Attack", true);
+        PlayTeleportSfx();
+        yield return new WaitForSeconds(TeleportPostDelay);
+        anim.SetBool("Attack", false);
+    }
+
     protected override void Start()
     {
         base.Start();
