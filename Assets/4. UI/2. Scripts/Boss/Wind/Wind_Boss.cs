@@ -38,22 +38,11 @@ public class Wind_Boss : Basic_Boss
         StartCoroutine(PatternLoop());
     }
 
-    // Update is called once per frame
+    // 탄막 발사 위치의 회전만 바람 보스 고유 처리다.
     protected override void Update()
     {
-        if (isDash == true)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime);
-            anim.SetBool(DashAnimParam, true);
-        }
-
+        base.Update();
         BulletPos.transform.rotation = transform.rotation;
-
-        if (MonsterDie)
-        {
-            SetStageCleared();
-            isDash = false;
-        }
     }
 
     IEnumerator SpawnTornado()

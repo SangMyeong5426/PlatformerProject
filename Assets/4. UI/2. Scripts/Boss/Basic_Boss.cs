@@ -121,10 +121,24 @@ public class Basic_Boss : Monster_Stats
     }
 
     // Update is called once per frame
+    // 돌진 이동과 사망 처리는 4종이 동일해 여기서 처리한다.
+    // 스테이지 클리어 플래그만 SetStageCleared()로 갈라진다.
     protected override void Update()
     {
         base.Update();
         BossDie();
+
+        if (isDash == true)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime);
+            anim.SetBool(DashAnimParam, true);
+        }
+
+        if (MonsterDie)
+        {
+            SetStageCleared();
+            isDash = false;
+        }
     }
 
     void BossDie()

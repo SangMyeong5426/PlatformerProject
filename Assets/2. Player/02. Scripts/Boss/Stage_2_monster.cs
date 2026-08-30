@@ -52,24 +52,6 @@ public class Stage_2_monster : Basic_Boss
         
     }
 
-    protected override void Update()
-    {
-        base.Update();
-        //StartCoroutine(MonsterChase());
-        
-
-        if (isDash == true)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime);
-            anim.SetBool(DashAnimParam, true);
-        }
-        if (MonsterDie)
-        {
-            SetStageCleared();
-            isDash = false;
-        }
-    }
-
 
     IEnumerator Ice_Bullet()
     {

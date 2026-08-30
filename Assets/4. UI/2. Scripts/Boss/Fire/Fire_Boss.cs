@@ -40,23 +40,6 @@ public class Fire_Boss : Basic_Boss
         StartCoroutine(PatternLoop());
     }
 
-    protected override void Update()
-    {
-        base.Update();
-
-        if (isDash == true)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime);
-            anim.SetBool(DashAnimParam, true);
-        }
-
-        if (MonsterDie)
-        {
-            SetStageCleared();
-            isDash = false;
-        }
-    }
-
     IEnumerator FireBreath()
     {
         LookPlayer();
