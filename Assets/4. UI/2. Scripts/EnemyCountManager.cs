@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,9 +13,9 @@ public class EnemyCountManager : MonoBehaviour
     public int KillMonsterCount;
     private void Awake()
     {
-        //°ÔÀÓ¸Å´ÏÀú¸¦ ½Ì±ÛÅÏ Ã³¸®
-        if (instance == null) instance = this; //ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é ÇöÀç ÀÎ½ºÅÏ½º·Î 
-        else Destroy(this);                    //ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏ¸é ÇöÀç ÀÎ½ºÅÏ½º¸¦ »èÁ¦ 
+        //ê²Œì„ë§¤ë‹ˆì €ë¥¼ ì‹±ê¸€í„´ ì²˜ë¦¬
+        if (instance == null) instance = this; //ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ í˜„ì¬ ì¸ìŠ¤í„´ìŠ¤ë¡œ 
+        else Destroy(this);                    //ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ë©´ í˜„ì¬ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì‚­ì œ 
     }
     void Start()
     {

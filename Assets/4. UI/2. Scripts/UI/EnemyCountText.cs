@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,7 +29,7 @@ public class EnemyCountText : MonoBehaviour
             }
             else if (LocalizationSettings.SelectedLocale == availableLocales.GetLocale("ko-KR"))
             {
-                enemycounttext.text = "≥≤¿∫ ¿˚ : " + curkillcount + " /" + EnemyCountManager.instance.onestage;
+                enemycounttext.text = "ÎÇ®ÏùÄ Ï†Å : " + curkillcount + " /" + EnemyCountManager.instance.onestage;
             }
         }
         if (SceneManager.GetActiveScene().name == "2_Stage")
@@ -40,7 +40,7 @@ public class EnemyCountText : MonoBehaviour
             }
             else if (LocalizationSettings.SelectedLocale == availableLocales.GetLocale("ko-KR"))
             {
-                enemycounttext.text = "≥≤¿∫ ¿˚ : " + curkillcount + " /" + EnemyCountManager.instance.twostage;
+                enemycounttext.text = "ÎÇ®ÏùÄ Ï†Å : " + curkillcount + " /" + EnemyCountManager.instance.twostage;
             }
         }
         if (SceneManager.GetActiveScene().name == "3_Stage")
@@ -51,7 +51,7 @@ public class EnemyCountText : MonoBehaviour
             }
             else if (LocalizationSettings.SelectedLocale == availableLocales.GetLocale("ko-KR"))
             {
-                enemycounttext.text = "≥≤¿∫ ¿˚ : " + curkillcount + " /" + EnemyCountManager.instance.threestage;
+                enemycounttext.text = "ÎÇ®ÏùÄ Ï†Å : " + curkillcount + " /" + EnemyCountManager.instance.threestage;
             }
         }
         if (SceneManager.GetActiveScene().name == "4_Stage")
@@ -62,7 +62,7 @@ public class EnemyCountText : MonoBehaviour
             }
             else if (LocalizationSettings.SelectedLocale == availableLocales.GetLocale("ko-KR"))
             {
-                enemycounttext.text = "≥≤¿∫ ¿˚ : " + curkillcount + " /" + EnemyCountManager.instance.fourstage;
+                enemycounttext.text = "ÎÇ®ÏùÄ Ï†Å : " + curkillcount + " /" + EnemyCountManager.instance.fourstage;
             }
         }
 

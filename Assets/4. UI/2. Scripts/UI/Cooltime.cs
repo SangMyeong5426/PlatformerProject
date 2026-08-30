@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,12 +26,12 @@ public class Cooltime : MonoBehaviour
 
         if (currentCooldown <= 0)
         {
-            // ´ë½¬ ÄðÅ¸ÀÓÀÌ 0 ÀÌÇÏÀÏ ¶§ UI ¼û±â±â
+            // ëŒ€ì‰¬ ì¿¨íƒ€ìž„ì´ 0 ì´í•˜ì¼ ë•Œ UI ìˆ¨ê¸°ê¸°
             cooltxt.enabled = false;
         }
         else
         {
-            // ´ë½¬ ÄðÅ¸ÀÓÀÌ 0 ÃÊ°úÀÏ ¶§ UI °»½Å ¹× Ç¥½Ã
+            // ëŒ€ì‰¬ ì¿¨íƒ€ìž„ì´ 0 ì´ˆê³¼ì¼ ë•Œ UI ê°±ì‹  ë° í‘œì‹œ
             cooltxt.enabled = true;
             cooltxt.text = Mathf.CeilToInt(currentCooldown).ToString();
         }
@@ -56,12 +56,12 @@ public class Cooltime : MonoBehaviour
 
         if (currentCooldown <= 0f)
         {
-            // ÄðÅ¸ÀÓÀÌ 0ÃÊÀÏ °æ¿ì UI¿¡ ¼ýÀÚ¸¦ Ç¥½ÃÇÏÁö ¾ÊÀ½
+            // ì¿¨íƒ€ìž„ì´ 0ì´ˆì¼ ê²½ìš° UIì— ìˆ«ìžë¥¼ í‘œì‹œí•˜ì§€ ì•ŠìŒ
             cooldownText.text = "";
         }
         else
         {
-            // ÇöÀç ÄðÅ¸ÀÓÀ» UI¿¡ Ç¥½Ã
+            // í˜„ìž¬ ì¿¨íƒ€ìž„ì„ UIì— í‘œì‹œ
             cooldownText.text = currentCooldown.ToString("0");
         }
     }*/

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,7 +24,7 @@ public class Tor : MonoBehaviour
         delay -= Time.deltaTime;
 
     }
-    private void OnTriggerStay2D(Collider2D collision) // ºê·¹½º °ø°İ µô·¹ÀÌ
+    private void OnTriggerStay2D(Collider2D collision) // ë¸Œë ˆìŠ¤ ê³µê²© ë”œë ˆì´
     {
         if (collision.CompareTag("Player"))
         {

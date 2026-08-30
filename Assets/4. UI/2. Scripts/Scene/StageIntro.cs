@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -18,11 +18,11 @@ public class StageIntro : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "1_Stage")
         {
-            StageText.text = "1½ºÅ×ÀÌÁö : ###µ¿±¼";
+            StageText.text = "1ìŠ¤í…Œì´ì§€ : ###ë™êµ´";
             Invoke("SetActivefalse", 2);
         }
 
-        // ¾À ÀüÈ¯ ½Ã bool°ª º¯°æÀ» false¿¡¼­ true·Î º¯°æ ÈÄ, ±× °æ¿ì SetActive(true)·Î °ÔÀÓ ¿ÀºêÁ§Æ® ¿Â ÇÏ°í ½ºÅ×ÀÌÁö º°·Î ÅØ½ºÆ®¸¸ º¯°æ
+        // ì”¬ ì „í™˜ ì‹œ boolê°’ ë³€ê²½ì„ falseì—ì„œ trueë¡œ ë³€ê²½ í›„, ê·¸ ê²½ìš° SetActive(true)ë¡œ ê²Œì„ ì˜¤ë¸Œì íŠ¸ ì˜¨ í•˜ê³  ìŠ¤í…Œì´ì§€ ë³„ë¡œ í…ìŠ¤íŠ¸ë§Œ ë³€ê²½
     }
 
     void SetActivefalse()

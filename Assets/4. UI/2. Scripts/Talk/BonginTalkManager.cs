@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -70,7 +70,7 @@ public class BonginTalkManager : MonoBehaviour
 
     void GenerateData()
     {
-        talkData.Add(1, "B¸¦ ´­·¯ ºÀÀÎÀ» ÇÏÀÚ!");
+        talkData.Add(1, "Bë¥¼ ëˆŒëŸ¬ ë´‰ì¸ì„ í•˜ì!");
         talkData.Add(2, "");
     }
 
