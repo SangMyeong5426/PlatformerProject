@@ -15,10 +15,7 @@ public class BoolReset : MonoBehaviour
             BoolManager.isShake = false;
             BoolManager.Ending = false;
 
-            EnemyCountManager.one = false;
-            EnemyCountManager.two = false;
-            EnemyCountManager.three = false;
-            EnemyCountManager.four = false;
+            EnemyCountManager.ResetCounts();
 
         }
     }
