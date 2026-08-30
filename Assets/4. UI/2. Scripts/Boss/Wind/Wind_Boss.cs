@@ -63,45 +63,36 @@ public class Wind_Boss : Basic_Boss
         yield return StartCoroutine(SpawnBullet());
     }
 
+    // 버스트 4회의 시작 각도. 매번 조금씩 틀어 쏴야 탄막에 빈틈이 생기지 않는다.
+    static readonly int[] BurstOffsets = { 0, 10, 17, 24 };
+
     IEnumerator SpawnBullet()
     {
         LookPlayer();
         anim.SetBool("Bullet", true);
         SfxManger.instance.SfxPlay("Wind_Skill_smallTor", clip[1]);
         yield return new WaitForSeconds(1f);
-        for (int i = 0; i < 360; i += 25)
+
+        for (int b = 0; b < BurstOffsets.Length; b++)
         {
-            GameObject temp = Instantiate(bullet);
-            Destroy(temp, 2f);
-            temp.transform.position = BulletPos.transform.position;
-            temp.transform.rotation = Quaternion.Euler(0, 0, i);
-        }
-        yield return new WaitForSeconds(0.5f);
-        for (int i = 0; i < 360; i += 25)
-        {
-            GameObject temp = Instantiate(bullet);
-            Destroy(temp, 2f);
-            temp.transform.position = BulletPos.transform.position;
-            temp.transform.rotation = Quaternion.Euler(0, 0, i+10);
-        }
-        yield return new WaitForSeconds(0.5f);
-        for (int i = 0; i < 360; i += 25)
-        {
-            GameObject temp = Instantiate(bullet);
-            Destroy(temp, 2f);
-            temp.transform.position = BulletPos.transform.position;
-            temp.transform.rotation = Quaternion.Euler(0, 0, i + 17);
-        }
-        yield return new WaitForSeconds(0.5f);
-        for (int i = 0; i < 360; i += 25)
-        {
-            GameObject temp = Instantiate(bullet);
-            Destroy(temp, 2f);
-            temp.transform.position = BulletPos.transform.position;
-            temp.transform.rotation = Quaternion.Euler(0, 0, i + 24);
+            // 대기는 버스트 사이에만 넣는다. 마지막 뒤에 붙이면 총 시간이 0.5초 늘어난다.
+            if (b > 0) yield return new WaitForSeconds(0.5f);
+            FireBurst(BurstOffsets[b]);
         }
 
         yield return new WaitForSeconds(3f);
         anim.SetBool("Bullet", false);
+    }
+
+    // 25도 간격으로 15발을 원형으로 발사한다.
+    void FireBurst(int offset)
+    {
+        for (int angle = 0; angle < 360; angle += 25)
+        {
+            GameObject temp = Instantiate(bullet);
+            Destroy(temp, 2f);
+            temp.transform.position = BulletPos.transform.position;
+            temp.transform.rotation = Quaternion.Euler(0, 0, angle + offset);
+        }
     }
 }
