@@ -14,10 +14,38 @@ public class One_Stage_Boss : Basic_Boss
 
     public AudioClip[] clip; // 0 = 돌진, 1 = 스킬
 
+    // ── 공통 골격에 넘기는 값 ──────────────────────────────
+    // 돌진 애니메이션이 "Run"이고, 텔레포트 후딜이 1.5초로 가장 길다.
+    // 4종 중 유일하게 돌진에 효과음이 붙는다.
+
+    protected override string DashAnimParam => "Run";
+    protected override float TeleportPostDelay => 1.5f;
+
+    protected override void PlayDashSfx()
+    {
+        SfxManger.instance.SfxPlay("Rock_Rush", clip[0]);
+    }
+
+    protected override System.Func<IEnumerator>[] BuildPatterns()
+    {
+        return new System.Func<IEnumerator>[]
+        {
+            EarthRock, // 0
+            EarthGrow, // 1
+            Dash,      // 2
+            Teleport,  // 3
+        };
+    }
+
+    protected override void SetStageCleared()
+    {
+        BoolManager.FirstStageBossDie = true;
+    }
+
     protected override void Start()
     {
         base.Start();
-        StartCoroutine(RandomPattern());
+        StartCoroutine(PatternLoop());
         Player_Head = GameObject.FindGameObjectWithTag("Monster_Skill_Pos").GetComponent<Transform>();
 
     }
@@ -28,64 +56,13 @@ public class One_Stage_Boss : Basic_Boss
         if (isDash == true)
         {
             transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime);
-            anim.SetBool("Run", true);
+            anim.SetBool(DashAnimParam, true);
         }
         if (MonsterDie)
         {
-            BoolManager.FirstStageBossDie = true;
+            SetStageCleared();
             isDash = false;
         }
-        
-    }
-
-    IEnumerator RandomPattern()
-    {
-        yield return new WaitForSeconds(2.0f); //패턴 사이에 나오는 경직 시간
-        if (!MonsterDie)
-        {
-            int ranPattern = Random.Range(0, 4);
-            switch (ranPattern)
-            {
-                case 0:
-                    StartCoroutine(EarthRock());
-                    break;
-                case 1:
-                    StartCoroutine(EarthGrow());
-                    break;
-                case 2:
-                    StartCoroutine(BossDash());
-                    break;
-                case 3:
-                    StartCoroutine(TeleAttack());
-                    break;
-            }
-        }
-    }
-
-    IEnumerator TeleAttack()
-    {
-        transform.position = Target.transform.position;
-        yield return new WaitForSeconds(0.5f);
-        base.LookPlayer();
-        anim.SetBool("Attack", true);
-        yield return new WaitForSeconds(1.5f);
-        anim.SetBool("Attack", false);
-        StartCoroutine(RandomPattern());
-    }
-
-    IEnumerator BossDash()
-    {
-        base.LookPlayer();//플레이어 방향 바라보기
-        isDash = true;
-        SfxManger.instance.SfxPlay("Rock_Rush", clip[0]);
-        DashPos.SetActive(true);
-        yield return new WaitForSeconds(1.5f); //패턴 피할 시간
-        transform.position = Vector2.MoveTowards(transform.position, DashDir.position, speed * Time.deltaTime); // 보스전방에 DashDir라는 빈 오브젝트 생성해서 추적(전방으로 돌진하게끔) 타겟 포지션으로 하면 이상하게 안됨
-        yield return new WaitForSeconds(2.5f);
-        isDash = false;
-        anim.SetBool("Run", false);
-        DashPos.SetActive(false);
-        StartCoroutine(RandomPattern());
         
     }
 
@@ -114,8 +91,6 @@ public class One_Stage_Boss : Basic_Boss
         Destroy(Skill_3_3_pos, 0.5f);
         //Destroy(Skill_1, 2f); // 1초뒤에 삭제
         anim.SetBool("Attack_2", false); // 애니메이션 Idle로
-        StartCoroutine(RandomPattern());
-
     }
 
     IEnumerator EarthRock()
@@ -127,7 +102,6 @@ public class One_Stage_Boss : Basic_Boss
         yield return new WaitForSeconds(1.5f);
         anim.SetBool("Attack", false);
         Destroy(Skill_Bullet, 3.5f);
-        StartCoroutine(RandomPattern());
     }
    
     private void OnDrawGizmos() // 추적 범위
