@@ -319,18 +319,7 @@ Wind_Boss
       wait 3
       anim Bullet=false
       return-to-scheduler
-  [3] SpawnTornado
-      anim Tornado=true
-      sfx Wind_Skill_Tornado
-      wait 1
-      instantiate TornadoPrefab
-      instantiate TornadoPrefab
-      instantiate TornadoPrefab
-      instantiate TornadoPrefab
-      wait 0.5
-      anim Tornado=false
-      wait 3.5
-      chain SpawnBullet
+  [3] SpawnBullet
       look
       anim Bullet=true
       sfx Wind_Skill_smallTor

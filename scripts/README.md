@@ -39,8 +39,8 @@ python scripts/boss-pattern-diff --emit           # 시퀀스를 그대로 출�
 
 ### 기준표
 
-`baseline/boss-patterns.txt` 는 **리팩토링 직전 커밋 `2f023e52` 에서 뽑은 것**이다.
-생성물이므로 손으로 고치지 않는다. 다시 만들려면:
+`baseline/boss-patterns.txt` 의 출발점은 **리팩토링 직전 커밋 `2f023e52`** 다. 생성물이므로
+손으로 고치지 않는다.
 
 ```bash
 python scripts/boss-pattern-diff --emit --rev 2f023e52 > scripts/baseline/boss-patterns.txt
@@ -48,6 +48,22 @@ python scripts/boss-pattern-diff --emit --rev 2f023e52 > scripts/baseline/boss-p
 
 기준이 사라질 일은 없다. `2f023e52` 가 이력에 있는 한 언제든 다시 뽑을 수 있고 결과가
 달라지지 않는다.
+
+#### 기준표에 반영한 의도된 동작 변경
+
+**동작을 일부러 바꾸면 기준표를 갱신한다.** 그러지 않으면 도구가 영원히 `FAIL` 을 내서
+쓸모가 없어진다. 대신 무엇을 왜 반영했는지 여기에 남긴다 — 그래야 `PASS` 가 "의도하지 않은
+변경이 없다"는 뜻을 유지한다.
+
+| 언제 | 무엇이 바뀌었나 |
+| --- | --- |
+| 2026-08-31 | 바람 보스 패턴 `[3]` 이 `SpawnTornado`(중복) 에서 `SpawnBullet` 로 |
+
+해당 커밋은 `git log --oneline --grep "바람 보스 패턴 3번"` 으로 찾는다. **해시를 적지
+않는다** — 이 표를 담은 커밋 자신을 가리켜야 해서 적는 순간 어긋난다.
+
+갱신할 때는 **먼저 `FAIL` diff 를 읽고 바뀐 것이 의도한 것뿐인지 확인한 뒤** 다시 뽑는다.
+바람 보스 변경 때는 헝크 1개 · 패턴 `[3]` 블록만 바뀌고 나머지 20개는 그대로임을 확인했다.
 
 ### 대조할 때 무시하는 것
 

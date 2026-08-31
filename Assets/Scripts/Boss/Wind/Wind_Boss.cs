@@ -22,8 +22,8 @@ public class Wind_Boss : Basic_Boss
         {
             Teleport,     // 0
             Dash,         // 1
-            SpawnTornado, // 2
-            SpawnTornado, // 3 - 2번과 동일. 토네이도가 50% 확률로 나오는 기존 동작을 그대로 둔다
+            SpawnTornado, // 2 - 토네이도를 깔고 탄막으로 이어진다 (10.5초)
+            SpawnBullet,  // 3 - 탄막만 (5.5초)
         };
     }
 
