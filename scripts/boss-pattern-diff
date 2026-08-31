@@ -1,0 +1,456 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""보스 패턴 실행 시퀀스를 소스에서 뽑아 기준표와 대조한다.
+
+무엇을 하나
+  보스의 패턴 코루틴을 순서대로 읽어 "무엇을 어떤 순서로 하는가"를 뽑는다.
+  대기 시간, anim 파라미터, 효과음 키, 생성·파괴, 돌진·텔레포트 상태 변경이 대상이다.
+  for 루프는 펼치고, virtual 훅은 보스가 재정의한 값으로 치환한다.
+
+왜 필요한가
+  이 저장소에는 테스트가 없다. 동작을 바꾸지 않는 리팩토링에서 "컴파일이 된다"는
+  검증이 아니다 - 코루틴의 대기 하나를 빠뜨리거나 순서를 바꿔도 컴파일은 된다.
+  패턴은 랜덤으로 골라져 플레이로 재현하기도 어렵다.
+
+범위
+  2f023e52(리팩토링 전) .. 626a80f0(2단계 완료) 구간의 보스 4종 패턴 검증용이다.
+  그 구간의 두 가지 소스 모양만 읽는다.
+    이전: 각 보스가 BossDash/TeleAttack/RandomPattern 을 각자 갖고,
+          패턴이 끝에서 RandomPattern() 을 재귀 호출한다
+    이후: Basic_Boss 가 PatternLoop/Dash/Teleport 를 갖고,
+          보스는 BuildPatterns() 로 목록만 정의하며 차이는 virtual 훅으로 넘긴다
+
+  이 스크립트는 C# 파서가 아니라 위 두 모양에 맞춘 줄 단위 스캐너다.
+  코드 모양이 바뀌면 이 스크립트도 함께 고쳐야 한다.
+
+사용법
+  scripts/boss-pattern-diff                   기준표와 현재 작업 트리를 대조
+  scripts/boss-pattern-diff --rev REV         기준표와 REV 를 대조
+  scripts/boss-pattern-diff --emit            현재 시퀀스를 출력 (기준표 생성용)
+  scripts/boss-pattern-diff --emit --rev REV  REV 의 시퀀스를 출력
+"""
+import argparse
+import os
+import re
+import subprocess
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASELINE = os.path.join(ROOT, "scripts", "baseline", "boss-patterns.txt")
+
+# 리팩토링 대상 4종에 Boss_mode 를 더한다. Boss_mode 는 2단계 범위 밖이라
+# 손대지 않았고, 그래서 대조에 넣으면 "손대지 않았다"는 것 자체가 검증된다.
+BOSSES = ["Fire_Boss", "Wind_Boss", "One_Stage_Boss", "Stage_2_monster", "Boss_mode"]
+BASE = "Basic_Boss"
+
+# Basic_Boss 의 훅 기본값. 보스가 재정의하지 않으면 이 값을 쓴다.
+HOOK_DEFAULTS = {
+    "DashAnimParam": '"Dash"',
+    "PatternInterval": "2.0f",
+    "TeleportPreDelay": "0.5f",
+    "TeleportPostDelay": "0.8f",
+}
+
+SCHEDULERS = ("RandomPattern", "PatternLoop")
+
+# 리팩토링으로 이름만 바뀐 것. 같은 코루틴이므로 같은 이름으로 적어야 대조가 된다.
+RENAMED = {"BossDash": "Dash", "TeleAttack": "Teleport"}
+
+
+def decode(raw):
+    """UTF-8 을 먼저 시도하고 안 되면 CP949 로 읽는다.
+
+    아직 정규화되지 않은 CP949 파일이 남아 있다(Boss_mode 가 그렇다).
+    인코딩 때문에 검증이 막히면 안 되므로 도구가 양쪽을 다 읽는다."""
+    for enc in ("utf-8-sig", "cp949"):
+        try:
+            return raw.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", "replace")
+
+
+def run(args):
+    p = subprocess.run(args, cwd=ROOT, stdout=subprocess.PIPE,
+                       stderr=subprocess.DEVNULL)
+    return decode(p.stdout)
+
+
+def source(name, rev):
+    """리비전(또는 작업 트리)에서 클래스 파일을 읽는다.
+
+    파일이 옮겨 다녔으므로 경로가 아니라 파일명으로 찾는다."""
+    target = name + ".cs"
+    if rev is None:
+        for dirpath, _dirs, files in os.walk(os.path.join(ROOT, "Assets")):
+            if target in files:
+                with open(os.path.join(dirpath, target), "rb") as f:
+                    return decode(f.read())
+        return None
+    for path in run(["git", "ls-tree", "-r", "--name-only", rev]).splitlines():
+        if path.endswith("/" + target) or path == target:
+            return run(["git", "show", rev + ":" + path]).lstrip("﻿")
+    return None
+
+
+def strip_comments(text):
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    out = []
+    for line in text.split("\n"):
+        quoted = False
+        cut = None
+        for i, ch in enumerate(line):
+            if ch == '"':
+                quoted = not quoted
+            elif ch == "/" and not quoted and line[i:i + 2] == "//":
+                cut = i
+                break
+        out.append(line if cut is None else line[:cut])
+    return "\n".join(out)
+
+
+def block_after(text, start):
+    """start 이후 첫 여는 중괄호부터 짝이 맞는 닫는 중괄호까지의 내용."""
+    i = text.find("{", start)
+    if i < 0:
+        return None
+    depth = 0
+    j = i
+    while j < len(text):
+        if text[j] == "{":
+            depth += 1
+        elif text[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[i + 1:j]
+        j += 1
+    return None
+
+
+def method_body(text, name):
+    """이름이 name 인 메서드의 본문과 파라미터. 호출부가 아니라 선언부를 찾는다."""
+    pattern = r"\b" + re.escape(name) + r"\s*\(([^)]*)\)\s*\{"
+    for m in re.finditer(pattern, text):
+        head = text[max(0, m.start() - 80):m.start()]
+        if re.search(r"(IEnumerator|void|int|float|string)\s*$", head) or "override" in head:
+            return block_after(text, m.start()), m.group(1).strip()
+    return None, None
+
+
+def const_arrays(text):
+    """정수 배열 리터럴을 모은다. Wind 의 BurstOffsets 같은 것."""
+    found = {}
+    for m in re.finditer(r"\b(\w+)\s*=\s*\{([^}]*)\}\s*;", text):
+        vals = [v.strip() for v in m.group(2).split(",") if v.strip()]
+        if vals and all(re.fullmatch(r"-?\d+", v) for v in vals):
+            found[m.group(1)] = [int(v) for v in vals]
+    return found
+
+
+def num(expr, env):
+    """숫자로 평가한다. 안 되면 None."""
+    if expr is None:
+        return None
+    plain = expr.strip().rstrip("fF")
+    try:
+        return float(plain)
+    except ValueError:
+        pass
+    subst = re.sub(r"\b(\w+)\b",
+                   lambda m: str(env[m.group(1)]) if m.group(1) in env else m.group(1),
+                   expr)
+    subst = subst.replace("f", "").replace("F", "")
+    if re.fullmatch(r"[-+*/ 0-9().]+", subst):
+        try:
+            return eval(subst, {"__builtins__": {}}, {})
+        except Exception:
+            return None
+    return None
+
+
+def fmt(v):
+    if v is None:
+        return "?"
+    return str(int(v)) if float(v) == int(v) else ("%g" % v)
+
+
+class Boss(object):
+    def __init__(self, name, rev):
+        self.name = name
+        self.text = strip_comments(source(name, rev) or "")
+        self.base = strip_comments(source(BASE, rev) or "")
+        self.arrays = const_arrays(self.text)
+        self.new_shape = "BuildPatterns" in self.text
+        self.hooks = dict(HOOK_DEFAULTS)
+        for key in HOOK_DEFAULTS:
+            m = re.search(r"override\s+\w+\??\s+" + key + r"\s*=>\s*([^;]+);", self.text)
+            if m:
+                self.hooks[key] = m.group(1).strip()
+
+    def patterns(self):
+        """패턴 목록을 선언 순서대로. 인덱스가 기존 switch 의 case 번호와 같다."""
+        if self.new_shape:
+            body, _ = method_body(self.text, "BuildPatterns")
+            inner = block_after(body or "", 0) or ""
+            return [n.strip() for n in inner.split(",") if n.strip()]
+        body, _ = method_body(self.text, "RandomPattern")
+        out = []
+        for m in re.finditer(r"case\s+\d+\s*:(.*?)break\s*;", body or "", flags=re.S):
+            c = re.search(r"StartCoroutine\(\s*(\w+)\s*\(", m.group(1))
+            if c:
+                out.append(c.group(1))
+        return out
+
+    def interval(self):
+        """패턴 사이 경직 시간."""
+        if self.new_shape:
+            return num(self.hooks["PatternInterval"], {})
+        body, _ = method_body(self.text, "RandomPattern")
+        m = re.search(r"WaitForSeconds\(([^)]+)\)", body or "")
+        return num(m.group(1), {}) if m else None
+
+    def body_of(self, name):
+        """코루틴/메서드 본문. 공통 골격은 Basic_Boss 에서 찾는다."""
+        body, params = method_body(self.text, name)
+        if body is None and self.new_shape:
+            body, params = method_body(self.base, name)
+        return body, params
+
+    def hook_ops(self, name):
+        body, _ = self.body_of(name)
+        return self.ops(body, {}) if body else []
+
+    def ops(self, body, env, depth=0):
+        if body is None or depth > 6:
+            return []
+        out = []
+        lines = body.split("\n")
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            i += 1
+            if not line or line in ("{", "}"):
+                continue
+
+            # i++ 와 i += N 두 형태를 모두 읽는다.
+            m = re.match(r"for\s*\(\s*int\s+(\w+)\s*=\s*(\d+)\s*;\s*\1\s*<\s*([\w.]+)"
+                         r"\s*;\s*\1\s*(?:\+\+|\+=\s*(\d+))\s*\)", line)
+            if m:
+                var = m.group(1)
+                start = int(m.group(2))
+                stop = self.bound(m.group(3), env)
+                step = int(m.group(4)) if m.group(4) else 1
+                block, i = self.take_block(lines, i)
+                if stop is not None:
+                    for v in range(start, int(stop), step):
+                        scope = dict(env)
+                        scope[var] = v
+                        out += self.ops(block, scope, depth + 1)
+                continue
+
+            m = re.match(r"if\s*\(([^)]+)\)\s*(.*)$", line)
+            if m:
+                keep = self.cond(m.group(1), env)
+                rest = m.group(2).strip()
+                if rest:
+                    if keep:
+                        out += self.ops(rest, env, depth + 1)
+                else:
+                    block, i = self.take_block(lines, i)
+                    if keep:
+                        out += self.ops(block, env, depth + 1)
+                continue
+
+            out += self.classify(line, env, depth)
+        return out
+
+    def bound(self, expr, env):
+        if expr.endswith(".Length"):
+            name = expr[:-len(".Length")]
+            if name in self.arrays:
+                return len(self.arrays[name])
+            return None
+        return num(expr, env)
+
+    @staticmethod
+    def take_block(lines, i):
+        while i < len(lines) and not lines[i].strip():
+            i += 1
+        if i < len(lines) and lines[i].strip().startswith("{"):
+            depth = 0
+            start = i
+            while i < len(lines):
+                depth += lines[i].count("{") - lines[i].count("}")
+                i += 1
+                if depth == 0:
+                    break
+            return "\n".join(lines[start + 1:i - 1]), i
+        return (lines[i] if i < len(lines) else ""), i + 1
+
+    @staticmethod
+    def cond(cond, env):
+        m = re.match(r"\s*(\w+)\s*(<=|>=|<|>)\s*(\d+)\s*$", cond)
+        if m and m.group(1) in env:
+            a = env[m.group(1)]
+            b = int(m.group(3))
+            return {">": a > b, "<": a < b, ">=": a >= b, "<=": a <= b}[m.group(2)]
+        # 판단할 수 없으면 포함한다. 빠뜨리는 것보다 낫다.
+        return True
+
+    def classify(self, line, env, depth):
+        m = re.search(r"yield\s+return\s+new\s+WaitForSeconds\(([^)]+)\)", line)
+        if m:
+            expr = m.group(1).strip()
+            if expr in self.hooks:
+                expr = self.hooks[expr]
+            return ["wait " + fmt(num(expr, env))]
+
+        m = re.search(r"yield\s+return\s+StartCoroutine\(\s*(\w+)\s*\(", line)
+        if m:
+            body, _ = self.body_of(m.group(1))
+            return ["chain " + m.group(1)] + self.ops(body, {}, depth + 1)
+
+        m = re.search(r"StartCoroutine\(\s*(\w+)\s*\(", line)
+        if m:
+            name = m.group(1)
+            if name in SCHEDULERS:
+                return ["return-to-scheduler"]
+            body, _ = self.body_of(name)
+            return ["chain " + name] + self.ops(body, {}, depth + 1)
+
+        m = re.search(r"anim\.SetBool\(\s*([^,]+),\s*(true|false)\s*\)", line)
+        if m:
+            param = m.group(1).strip()
+            if param in self.hooks:
+                param = self.hooks[param]
+            return ["anim %s=%s" % (param.strip().strip('"'), m.group(2))]
+
+        m = re.search(r'SfxPlay\(\s*"([^"]+)"', line)
+        if m:
+            return ["sfx " + m.group(1)]
+
+        if re.search(r"\bPlayDashSfx\s*\(\s*\)", line):
+            return self.hook_ops("PlayDashSfx")
+        if re.search(r"\bPlayTeleportSfx\s*\(\s*\)", line):
+            return self.hook_ops("PlayTeleportSfx")
+
+        m = re.search(r"Instantiate\(([^;]*)\)", line)
+        if m:
+            return ["instantiate " + m.group(1).split(",")[0].strip()]
+
+        m = re.search(r"Destroy\(\s*(\w+)\s*,\s*([^)]+)\)", line)
+        if m:
+            return ["destroy %s %s" % (m.group(1), fmt(num(m.group(2), env)))]
+
+        if re.search(r"transform\.position\s*=\s*Target\.transform\.position", line):
+            return ["teleport-to-target"]
+        if re.search(r"transform\.position\s*=\s*Vector2\.MoveTowards", line):
+            return ["move"]
+
+        m = re.search(r"transform\.rotation\s*=\s*Quaternion\.Euler\(\s*0\s*,\s*0\s*,\s*([^)]+)\)", line)
+        if m:
+            return ["rot " + fmt(num(m.group(1), env))]
+        if re.search(r"\.transform\.position\s*=\s*\w+", line):
+            return ["setpos"]
+
+        if re.search(r"\bLookPlayer\s*\(\s*\)", line):
+            return ["look"]
+
+        m = re.search(r"\bisDash\s*=\s*(true|false)", line)
+        if m:
+            return ["isDash=" + m.group(1)]
+
+        m = re.search(r"DashPos\.SetActive\(\s*(true|false)\s*\)", line)
+        if m:
+            return ["dashpos " + m.group(1)]
+
+        m = re.match(r"(\w+)\s*\(\s*([^)]*)\)\s*;\s*$", line)
+        if m and m.group(1) not in ("Debug", "if", "for", "while", "yield"):
+            body, params = self.body_of(m.group(1))
+            if body is not None:
+                scope = dict(env)
+                if params:
+                    pname = params.split()[-1]
+                    value = num(m.group(2), env)
+                    if value is None:
+                        value = self.index_arg(m.group(2), env)
+                    scope[pname] = value
+                # 평범한 메서드 호출은 마커를 남기지 않고 본문만 펼친다.
+                # 남기면 헬퍼로 빼내는 리팩토링마다 차이로 잡히는데, 그건
+                # 구조 변경이지 동작 변경이 아니다. yield 지점인 코루틴 연쇄
+                # (chain)와 다른 점이다.
+                return self.ops(body, scope, depth + 1)
+        return []
+
+    def index_arg(self, expr, env):
+        """BurstOffsets[b] 같은 인자를 값으로."""
+        m = re.match(r"(\w+)\[(\w+)\]", expr.strip())
+        if m and m.group(1) in self.arrays:
+            idx = env.get(m.group(2))
+            if idx is not None:
+                return self.arrays[m.group(1)][int(idx)]
+        return 0
+
+
+def emit(rev):
+    out = []
+    for name in BOSSES:
+        boss = Boss(name, rev)
+        if not boss.text:
+            out.append(name + ": 소스 없음")
+            continue
+        out.append(name)
+        out.append("  scheduler wait " + fmt(boss.interval()))
+        for idx, fn in enumerate(boss.patterns()):
+            body, _ = boss.body_of(fn)
+            out.append("  [%d] %s" % (idx, RENAMED.get(fn, fn)))
+            ops = boss.ops(body, {})
+            # 새 모양은 패턴이 끝나면 PatternLoop 의 다음 반복으로 돌아간다.
+            # 이전 모양이 끝에서 명시적으로 하던 것과 같으므로 맞춰 적는다.
+            if boss.new_shape:
+                ops.append("return-to-scheduler")
+            for op in ops:
+                out.append("      " + op)
+    return "\n".join(out) + "\n"
+
+
+def main():
+    # Windows 콘솔 기본 코드페이지에서 한글이 깨지지 않게 한다.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--rev", default=None, help="비교할 리비전 (없으면 작업 트리)")
+    ap.add_argument("--emit", action="store_true", help="시퀀스를 그대로 출력")
+    args = ap.parse_args()
+
+    text = emit(args.rev)
+    if args.emit:
+        sys.stdout.write(text)
+        return 0
+
+    if not os.path.exists(BASELINE):
+        sys.stderr.write("기준표가 없다: %s\n--emit 으로 만든다\n" % BASELINE)
+        return 2
+    with open(BASELINE, encoding="utf-8") as f:
+        baseline = f.read()
+
+    if baseline == text:
+        count = len([l for l in text.split("\n") if l.strip().startswith("[")])
+        print("PASS  패턴 %d개 시퀀스가 기준표와 완전히 같다" % count)
+        return 0
+
+    print("FAIL  기준표와 다르다\n")
+    import difflib
+    diff = difflib.unified_diff(baseline.split("\n"), text.split("\n"),
+                                "baseline", args.rev or "worktree", lineterm="")
+    for line in diff:
+        print(line)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

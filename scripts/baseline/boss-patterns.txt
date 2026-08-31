@@ -1,0 +1,951 @@
+Fire_Boss
+  scheduler wait 2
+  [0] FireBreath
+      look
+      anim Breath=true
+      sfx Fire_Skill_breath
+      wait 0.3
+      instantiate BreathPrepab
+      wait 2
+      anim Breath=false
+      return-to-scheduler
+  [1] Dash
+      look
+      isDash=true
+      dashpos true
+      wait 1.5
+      move
+      wait 2.5
+      isDash=false
+      anim Dash=false
+      dashpos false
+      return-to-scheduler
+  [2] FireMeteor
+      anim Meteor=true
+      sfx Fire_Skill_Meteor
+      instantiate MeteorPrepab
+      wait 2
+      anim Meteor=false
+      return-to-scheduler
+  [3] Teleport
+      teleport-to-target
+      wait 0.5
+      look
+      anim Attack=true
+      sfx Fire_Attack
+      wait 0.8
+      anim Attack=false
+      return-to-scheduler
+Wind_Boss
+  scheduler wait 2
+  [0] Teleport
+      teleport-to-target
+      wait 0.5
+      look
+      anim Attack=true
+      wait 1
+      anim Attack=false
+      return-to-scheduler
+  [1] Dash
+      look
+      isDash=true
+      dashpos true
+      wait 1.5
+      move
+      wait 2.5
+      isDash=false
+      anim Dash=false
+      dashpos false
+      return-to-scheduler
+  [2] SpawnTornado
+      anim Tornado=true
+      sfx Wind_Skill_Tornado
+      wait 1
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      wait 0.5
+      anim Tornado=false
+      wait 3.5
+      chain SpawnBullet
+      look
+      anim Bullet=true
+      sfx Wind_Skill_smallTor
+      wait 1
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 0
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 25
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 50
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 75
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 100
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 125
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 150
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 175
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 200
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 225
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 250
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 275
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 300
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 325
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 350
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 10
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 35
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 60
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 85
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 110
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 135
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 160
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 185
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 210
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 235
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 260
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 285
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 310
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 335
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 360
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 17
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 42
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 67
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 92
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 117
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 142
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 167
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 192
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 217
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 242
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 267
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 292
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 317
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 342
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 367
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 24
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 49
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 74
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 99
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 124
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 149
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 174
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 199
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 224
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 249
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 274
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 299
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 324
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 349
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 374
+      wait 3
+      anim Bullet=false
+      return-to-scheduler
+  [3] SpawnTornado
+      anim Tornado=true
+      sfx Wind_Skill_Tornado
+      wait 1
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      wait 0.5
+      anim Tornado=false
+      wait 3.5
+      chain SpawnBullet
+      look
+      anim Bullet=true
+      sfx Wind_Skill_smallTor
+      wait 1
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 0
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 25
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 50
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 75
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 100
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 125
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 150
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 175
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 200
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 225
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 250
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 275
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 300
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 325
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 350
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 10
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 35
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 60
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 85
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 110
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 135
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 160
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 185
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 210
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 235
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 260
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 285
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 310
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 335
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 360
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 17
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 42
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 67
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 92
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 117
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 142
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 167
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 192
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 217
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 242
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 267
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 292
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 317
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 342
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 367
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 24
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 49
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 74
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 99
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 124
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 149
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 174
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 199
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 224
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 249
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 274
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 299
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 324
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 349
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 374
+      wait 3
+      anim Bullet=false
+      return-to-scheduler
+One_Stage_Boss
+  scheduler wait 2
+  [0] EarthRock
+      look
+      anim Attack=true
+      wait 0.3
+      instantiate EarthBullet
+      wait 1.5
+      anim Attack=false
+      destroy Skill_Bullet 3.5
+      return-to-scheduler
+  [1] EarthGrow
+      look
+      anim Attack_2=true
+      sfx Rock_Skill_1
+      wait 1
+      instantiate EarthGrow_1
+      instantiate EarthGrow_1
+      wait 0.5
+      instantiate EarthGrow_2
+      instantiate EarthGrow_2
+      wait 0.5
+      instantiate EarthGrow_3
+      instantiate EarthGrow_3
+      destroy Skill_1_pos 0.5
+      destroy Skill_1_1_pos 0.5
+      destroy Skill_2_pos 0.5
+      destroy Skill_2_2_pos 0.5
+      destroy Skill_3_pos 0.5
+      destroy Skill_3_3_pos 0.5
+      anim Attack_2=false
+      return-to-scheduler
+  [2] Dash
+      look
+      isDash=true
+      sfx Rock_Rush
+      dashpos true
+      wait 1.5
+      move
+      wait 2.5
+      isDash=false
+      anim Run=false
+      dashpos false
+      return-to-scheduler
+  [3] Teleport
+      teleport-to-target
+      wait 0.5
+      look
+      anim Attack=true
+      wait 1.5
+      anim Attack=false
+      return-to-scheduler
+Stage_2_monster
+  scheduler wait 2
+  [0] Ice_Bullet
+      look
+      anim Attack=true
+      sfx Ice_Skill_1
+      wait 0.5
+      instantiate Ice_Arrow
+      anim Attack=false
+      destroy Skill_1 0.8
+      return-to-scheduler
+  [1] Dash
+      look
+      isDash=true
+      dashpos true
+      wait 1.5
+      move
+      wait 2.5
+      isDash=false
+      anim Run=false
+      dashpos false
+      return-to-scheduler
+  [2] Second_Attack
+      look
+      anim Attack_2=true
+      sfx Ice_Skill_explosion
+      wait 1
+      instantiate Attack_Skill_2
+      destroy Skill_2 2
+      anim Attack_2=false
+      return-to-scheduler
+  [3] Teleport
+      teleport-to-target
+      wait 0.8
+      look
+      anim Attack=true
+      wait 0.8
+      anim Attack=false
+      return-to-scheduler
+Boss_mode
+  scheduler wait 3
+  [0] Teleport
+      teleport-to-target
+      wait 0.8
+      look
+      wait 0.3
+      instantiate BreathPrepab
+      wait 0.8
+      return-to-scheduler
+  [1] SpawnTornado
+      wait 1
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      instantiate TornadoPrefab
+      wait 3.5
+      return-to-scheduler
+  [2] SpawnBullet
+      look
+      wait 0.8
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 0
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 25
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 50
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 75
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 100
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 125
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 150
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 175
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 200
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 225
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 250
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 275
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 300
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 325
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 350
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 10
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 35
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 60
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 85
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 110
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 135
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 160
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 185
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 210
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 235
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 260
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 285
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 310
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 335
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 360
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 17
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 42
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 67
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 92
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 117
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 142
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 167
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 192
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 217
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 242
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 267
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 292
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 317
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 342
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 367
+      wait 0.5
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 24
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 49
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 74
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 99
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 124
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 149
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 174
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 199
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 224
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 249
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 274
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 299
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 324
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 349
+      instantiate bullet
+      destroy temp 2
+      setpos
+      rot 374
+      wait 3
+      return-to-scheduler
+  [3] Second_Attack
+      look
+      wait 1
+      instantiate Attack_Skill_2
+      destroy Skill_2 2
+      return-to-scheduler
+  [4] FireMeteor
+      anim Skill_1=true
+      instantiate MeteorPrepab
+      wait 2
+      return-to-scheduler
