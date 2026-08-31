@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Unity 를 열지 않고 사용자 스크립트를 컴파일해 본다.
+
+무엇을 하나
+  Assets/Scripts/ 아래 모든 .cs 를 Unity 에 딸려 오는 Mono 컴파일러(mcs)로 컴파일하고
+  오류 수를 센다. 결과 어셈블리는 버린다 - 통과 여부만 본다.
+
+왜 필요한가
+  이 저장소에는 CI 가 없다. 컴파일 확인을 하려면 Unity 를 열고 재임포트를 기다린 뒤
+  콘솔을 봐야 하는데, 파일을 옮기는 작업에서는 에디터를 닫아 둬야 해서 그마저 못 한다.
+  이 스크립트는 그 사이를 메운다.
+
+한계 - Unity 의 컴파일과 같지 않다
+  - Unity 는 Roslyn 을 쓰고 이 스크립트는 Mono 의 mcs 를 쓴다. 진단 메시지와 지원하는
+    C# 버전이 다를 수 있다
+  - UNITY_EDITOR, UNITY_2021_3_OR_NEWER 같은 정의 기호를 넣지 않는다. #if 로 갈리는
+    코드가 있으면 Unity 와 다르게 컴파일된다
+  - Editor 폴더 스크립트와 에셋 스토어 패키지는 대상이 아니다
+  통과했다고 Unity 에서도 반드시 통과한다는 보장은 아니다. **실패는 확실한 신호이고,
+  통과는 "적어도 이 범위에서는 문제가 없다"는 뜻이다.**
+
+사용법
+  python scripts/compile-check
+  python scripts/compile-check --warnings   경고도 함께 출력
+"""
+import argparse
+import glob
+import io
+import os
+import subprocess
+import sys
+import tempfile
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UNITY_VERSION = "2021.3.0f1"
+EDITOR_ROOTS = [
+    r"C:\Program Files\Unity\Hub\Editor",
+    r"C:\Program Files (x86)\Unity\Hub\Editor",
+]
+SOURCE_DIR = os.path.join(ROOT, "Assets", "Scripts")
+
+
+def find_unity_data():
+    for base in EDITOR_ROOTS:
+        data = os.path.join(base, UNITY_VERSION, "Editor", "Data")
+        if os.path.isdir(data):
+            return data
+    return None
+
+
+def references(data):
+    """UnityEngine 모듈, 프로젝트가 이미 컴파일해 둔 패키지 어셈블리, netstandard."""
+    refs = sorted(glob.glob(os.path.join(data, "Managed", "UnityEngine", "*.dll")))
+
+    # Library/ScriptAssemblies 는 Unity 가 마지막으로 컴파일한 결과다. 패키지
+    # 어셈블리(Localization, TextMeshPro 등)를 여기서 가져온다.
+    # Assembly-CSharp 은 지금 컴파일하려는 것 자신이므로 뺀다.
+    for path in sorted(glob.glob(os.path.join(ROOT, "Library", "ScriptAssemblies", "*.dll"))):
+        if "Assembly-CSharp" not in os.path.basename(path):
+            refs.append(path)
+
+    # Localization 이 netstandard 2.1 타입을 노출한다. 없으면 CS0012 가 난다.
+    netstandard = os.path.join(data, "MonoBleedingEdge", "lib", "mono",
+                               "4.7.1-api", "Facades", "netstandard.dll")
+    if os.path.exists(netstandard):
+        refs.append(netstandard)
+    return refs
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--warnings", action="store_true", help="경고도 출력")
+    args = ap.parse_args()
+
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
+
+    data = find_unity_data()
+    if data is None:
+        sys.stderr.write("Unity %s 설치를 찾지 못했다. EDITOR_ROOTS 를 확인한다\n" % UNITY_VERSION)
+        return 2
+
+    mcs = os.path.join(data, "MonoBleedingEdge", "bin", "mcs.bat")
+    mscorlib = os.path.join(data, "MonoBleedingEdge", "lib", "mono",
+                            "unityjit-win32", "mscorlib.dll")
+    if not os.path.exists(mcs):
+        sys.stderr.write("mcs 를 찾지 못했다: %s\n" % mcs)
+        return 2
+
+    sources = []
+    for dirpath, _dirs, files in os.walk(SOURCE_DIR):
+        for f in files:
+            if f.endswith(".cs"):
+                sources.append(os.path.join(dirpath, f))
+    sources.sort()
+    if not sources:
+        sys.stderr.write("컴파일할 소스가 없다: %s\n" % SOURCE_DIR)
+        return 2
+
+    tmp = tempfile.mkdtemp(prefix="compile-check-")
+    rsp = os.path.join(tmp, "args.rsp")
+    out = os.path.join(tmp, "out.dll")
+
+    # 경로에 공백이 있으므로 응답 파일의 모든 경로를 따옴표로 감싼다.
+    lines = ['-r:"%s"' % r for r in references(data)]
+    lines += ['"%s"' % s for s in sources]
+    io.open(rsp, "w", encoding="utf-8").write("\n".join(lines) + "\n")
+
+    proc = subprocess.run(
+        [mcs, "-target:library", "-nostdlib", "-noconfig",
+         "-out:" + out, "-r:" + mscorlib, "@" + rsp],
+        cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    text = proc.stdout.decode("utf-8", "replace")
+
+    errors = [l for l in text.split("\n") if "): error " in l]
+    warnings = [l for l in text.split("\n") if "): warning " in l]
+
+    if errors:
+        print("FAIL  error %d개" % len(errors))
+        for line in errors[:30]:
+            print("  " + line.strip())
+        if len(errors) > 30:
+            print("  ... %d개 더" % (len(errors) - 30))
+        return 1
+
+    print("PASS  소스 %d개, error 0개, warning %d개" % (len(sources), len(warnings)))
+    if args.warnings:
+        for line in warnings:
+            print("  " + line.strip())
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
