@@ -30,3 +30,7 @@
 ## 기록 목록
 
 <!-- 새 ADR 을 추가하면 이 목록에도 한 줄 넣는다 -->
+
+- [ADR 0001: 씬 컴포넌트 교체를 에디터 대신 씬 YAML 직접 편집으로 한다](0001-scene-yaml-direct-edit.md) *(소급)*
+- [ADR 0002: 보스 공통화를 상속 계층이 아니라 `virtual` 훅으로 한다](0002-boss-template-method-hooks.md) *(소급)*
+- [ADR 0003: 스테이지 분기를 `StageId` enum 과 배열 인덱스로 일원화한다](0003-stage-id-enum.md) *(소급)*
