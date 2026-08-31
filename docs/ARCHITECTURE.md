@@ -1,0 +1,142 @@
+# 스크립트 구조
+
+이 문서는 `Assets/Scripts/` 아래 코드 배치를 기술한다. **코드와 항상 일치해야 한다** —
+어느 한쪽만 바꾸지 않는다. 갱신 규칙은 맨 아래에 있다.
+
+배치를 이렇게 정한 근거는 [ADR-0004](adr/0004-script-layout.md) 에 있다. 여기서는 반복하지
+않는다.
+
+## 범위
+
+사용자가 작성한 스크립트 **134개**가 `Assets/Scripts/` 아래에 있다.
+
+`Assets/` 의 나머지 폴더(`1. Monster`, `2. Player`, `3. Level_design`, `4. UI`, 에셋 스토어
+패키지들)에는 **에셋만 있다** — 스프라이트, 애니메이션, 프리팹, 씬, 사운드. 코드는 없다.
+
+## 배치
+
+```
+Assets/Scripts/
+├── Boss/       28    보스 5종
+├── UI/         13    HUD·텍스트·패널
+├── Player/     13    플레이어와 무기 3종
+├── Scene/      12    씬 전환·게임 흐름
+├── Monster/    10    일반 몬스터
+├── Core/        9    전역 상태와 객체 수명
+├── Item/        9    인벤토리·드롭
+├── Legacy/      9    옛 구현. 아직 씬이 참조한다
+├── Talk/        8    대화 시스템
+├── Select/      7    캐릭터·모드 선택
+├── Sound/       7    BGM·SFX
+├── Level/       6    카메라·배경·플랫폼
+└── Portal/      3    스테이지 이동
+```
+
+`asmdef` 는 두지 않는다. 지금 의존 관계가 얽혀 있어 어셈블리를 나누면 순환 참조가 난다.
+
+## `Boss/` — 보스 5종
+
+`Basic_Boss` 가 패턴 스케줄러와 공통 코루틴(돌진·텔레포트·사망 처리)을 갖고, 보스별 차이는
+`protected virtual` 훅으로 재정의한다. 근거는 [ADR-0002](adr/0002-boss-template-method-hooks.md).
+
+| 보스 | 본체 클래스 | 폴더 |
+| --- | --- | --- |
+| 불 | `Fire_Boss` | `Boss/Fire/` |
+| 얼음 | **`Stage_2_monster`** | `Boss/Ice/` |
+| 대지 | **`One_Stage_Boss`** | `Boss/Earth/` |
+| 바람 | `Wind_Boss` | `Boss/Wind/` |
+| 모드 | `Boss_mode` | `Boss/Mode/` |
+
+**얼음과 대지는 클래스 이름이 어느 보스인지 말해 주지 않는다.** 2023년 작업 당시 스테이지
+번호로 이름을 붙인 잔재다. 이름은 아직 바꾸지 않았다 — 이름 변경은 직렬화에 영향이 가는지
+따로 확인해야 하고, 배치 이동과 섞으면 문제가 생겼을 때 어느 쪽 때문인지 가릴 수 없다.
+
+각 보스 폴더에는 본체와 함께 **그 보스의 투사체·이펙트 스크립트**가 들어 있다.
+`Boss/Mode/` 에는 모드 보스 본체와 `FinBoss_*` 프리팹에 붙은 투사체 5개가 있다.
+
+`Basic_Boss` 와 `Boss_HpBar` 는 `Boss/` 바로 아래에 둔다. 특정 보스에 속하지 않는다.
+
+## `Core/` — 전역 상태와 객체 수명
+
+```
+BoolManager  BoolReset  StageId  EnemyCountManager
+Destroy  DestroyPL  DontDestroy  DontDestroyObj
+Unit
+```
+
+두 종류가 있다.
+
+**전역 진행 상태.** `BoolManager` 가 보스 클리어 플래그를, `EnemyCountManager` 가 스테이지별
+몬스터 수를 갖는다. 둘 다 `StageId` 를 인덱스로 쓴다([ADR-0003](adr/0003-stage-id-enum.md)).
+`BoolReset` 이 초기화한다.
+
+**씬을 넘는 객체의 수명.** `Destroy` / `DestroyPL` 은 씬이 바뀔 때 자신을 파괴할지
+`DontDestroyOnLoad` 로 남길지 판정한다. `DestroyPL` 은 `Destroy` 를 상속해 씬 목록만
+재정의한다.
+
+`Unit`(`AllUnits.Unit`)은 체력을 가진 모든 것의 기반 클래스다. 플레이어와 몬스터가 함께
+쓴다.
+
+## `Legacy/` — 아직 지울 수 없는 옛 구현
+
+```
+Boss  Final_Stage_Boss  Boss_Pattern  Boss_Pattern_Expo  pattern
+Monster_Bullet  Monster_chase  Monster_chase_far  Monster_chase_Test2
+```
+
+원래 `X/` 와 `test/` 라는 폴더에 있던 것들이다. **현재 설계에 속하지 않지만 아직 씬·프리팹이
+참조하고 있어 지우면 씬이 깨진다.**
+
+`Final_Stage_Boss` 와 그 부모 `Boss` 는 `FinalBoss.prefab` 에 붙어 있고, 그 프리팹은
+**빌드 설정에 없는 `Monster_Scenes` 에서만** 쓰인다. 현재 게임에서 도달할 수 없는 경로다.
+
+**여기 있는 것을 새로 참조하지 않는다.** 씬이 참조를 끊는 만큼 줄어들고, 비면 폴더를 없앤다.
+
+같은 폴더에 있던 9개는 어디서도 참조하지 않아 제거했다(`d430270d`).
+
+## 나머지 폴더
+
+| 폴더 | 무엇이 있나 |
+| --- | --- |
+| `Player/` | 이동·공격·대시. `Sword/` `Spear/` `Shield/` 에 무기별 애니메이션과 스킬 |
+| `Monster/` | 일반 몬스터의 상태·추적·원거리 공격 |
+| `Scene/` | 씬 전환, `GameManager`, 일시정지, 로딩, 사망 패널 |
+| `UI/` | 체력·마나 바, 쿨타임, 남은 몬스터 수, 맵 이름 |
+| `Talk/` | 대화 매니저 3종, 타이핑 효과, `TalkTrigger`, 봉인(`B_Test`)과 Bongin NPC |
+| `Item/` | 인벤토리, 슬롯, 드롭, 보석 |
+| `Select/` | 캐릭터 선택과 모드 선택 |
+| `Sound/` | BGM·SFX 매니저와 컨트롤 |
+| `Level/` | 카메라(흔들림·해상도·추적), 배경 반복, 내려가는 플랫폼 |
+| `Portal/` | 스테이지 포탈, 보스 클리어 포탈 |
+
+## 알려진 문제
+
+배치와 별개로 **아직 정리되지 않은 것**들이다.
+
+- **`Talk/` 가 762줄이고 매니저 3개가 같은 골격이다.** `TalkManager` 258 /
+  `EndTalkManager` 206 / `BonginTalkManager` 107 이 채널 수만 다르다. 대사가 코드에
+  하드코딩돼 있는데 프로젝트는 이미 Unity Localization 을 쓴다. `Talk/` 파일 일부는 아직
+  CP949 라 편집 전 인코딩 정규화가 필요하다
+- **클래스 이름이 내용을 말하지 않는 것들이 있다.** `Stage_2_monster`(얼음 보스),
+  `One_Stage_Boss`(대지 보스), `Mosnter_Repeat`(오타), `Postion`(오타), `SfxManger`(오타)
+- **의존 관계가 얽혀 있다.** `Basic_Boss` 가 `BoolManager` 를, `Item/Gemstone` 이
+  `BoolManager` 를 읽는 식이라 `asmdef` 로 나누면 순환 참조가 난다
+
+미결 사항은 [`followups.md`](followups.md) 에 있다.
+
+## 갱신 규칙
+
+다음을 하거나 발견하면 **이 문서도 함께 고친다.**
+
+- 폴더를 추가·삭제·이동·이름 변경
+- 스크립트를 다른 폴더로 옮기거나 새로 만들거나 지움
+- 보스를 추가하거나 본체 클래스 이름을 바꿈
+- `Legacy/` 의 파일이 줄거나 늘어남
+- `asmdef` 를 도입
+
+**한쪽만 바꾸고 끝내지 않는다.** 코드를 바꿨으면 이 문서를, 이 문서를 바꿨으면 코드를
+확인한다. 어긋난 것을 발견했는데 즉시 해소할 수 없으면 [`followups.md`](followups.md) 에
+적고 넘어간다. 조용히 지나가지 않는다.
+
+**개수를 손으로 세어 적은 값이 이 문서에 여럿 있다** — 범위의 134, 각 폴더 개수, `Talk/` 의
+줄 수. 검사하는 장치가 없으므로 폴더를 건드릴 때 함께 고친다.
