@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,7 +11,7 @@ public class Earth_Bullet : MonoBehaviour
     public Basic_Boss EarthBullet_Damage;
     public float delay = 0f;
 
-    // È¸Àü ¼Óµµ¸¦ Á¶ÀıÇÏ´Â º¯¼ö
+    // íšŒì „ ì†ë„ë¥¼ ì¡°ì ˆí•˜ëŠ” ë³€ìˆ˜
     public float rotationSpeed = 100f;
 
     // Start is called before the first frame update
@@ -32,15 +32,15 @@ public class Earth_Bullet : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Health ½ºÅ©¸³Æ® °¡Á®¿À±â
+            // Health ìŠ¤í¬ë¦½íŠ¸ ê°€ì ¸ì˜¤ê¸°
             AllUnits.Unit player_Hp = collision.gameObject.GetComponent<AllUnits.Unit>();
             if (player_Hp != null)
             {
                 if (delay <= 0f)
                 {
-                    Debug.Log("ÇÃ·¹ÀÌ¾î Ã¼·Â = " + (player_Hp.currentHealth - EarthBullet_Damage.IceWave_Damage));
+                    Debug.Log("í”Œë ˆì´ì–´ ì²´ë ¥ = " + (player_Hp.currentHealth - EarthBullet_Damage.IceWave_Damage));
                     player_Hp.TakeDamage(EarthBullet_Damage.IceWave_Damage);
-                    // Ã¼·Â °¨¼Ò
+                    // ì²´ë ¥ ê°ì†Œ
                     delay = 0.8f;
                 }
 
@@ -49,12 +49,12 @@ public class Earth_Bullet : MonoBehaviour
         }
     }
 
-    // ÃÑ¾ËÀ» È¸Àü½ÃÅ°´Â ÄÚ·çÆ¾ ¸Ş¼­µå
+    // ì´ì•Œì„ íšŒì „ì‹œí‚¤ëŠ” ì½”ë£¨í‹´ ë©”ì„œë“œ
     IEnumerator RotateBullet()
     {
         while (true)
         {
-            // ÃÑ¾ËÀÇ Á÷Áø ÀÌµ¿ Ã³¸®
+            // ì´ì•Œì˜ ì§ì§„ ì´ë™ ì²˜ë¦¬
             Vector3 direction = transform.right.normalized;
             rigid_bullet.velocity = direction * bullet_speed;
 

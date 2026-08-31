@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,23 +9,23 @@ public class TypingManager : MonoBehaviour
     public static TypingManager instance;
 
     [Header("Times for each character")]
-    public float timeForCharacter; //0.08ÀÌ ±âº».
+    public float timeForCharacter; //0.08ì´ ê¸°ë³¸.
 
     [Header("Times for each character when speed up")]
-    public float timeForCharacter_Fast; //0.03ÀÌ ºü¸¥ ÅØ½ºÆ®.
+    public float timeForCharacter_Fast; //0.03ì´ ë¹ ë¥¸ í…ìŠ¤íŠ¸.
 
-    float characterTime; // ½ÇÁ¦ Àû¿ëµÇ´Â ¹®ÀÚ¿­ ¼Óµµ.
+    float characterTime; // ì‹¤ì œ ì ìš©ë˜ëŠ” ë¬¸ìì—´ ì†ë„.
 
-    //ÀÓ½Ã ÀúÀåµÇ´Â ´ëÈ­ ¿ÀºêÁ§Æ®¿Í ´ëÈ­³»¿ë.
+    //ì„ì‹œ ì €ì¥ë˜ëŠ” ëŒ€í™” ì˜¤ë¸Œì íŠ¸ì™€ ëŒ€í™”ë‚´ìš©.
     string[] dialogsSave;
     TextMeshProUGUI tmpSave;
 
     public static bool isDialogEnd;
 
-    bool isTypingEnd = false; //Å¸ÀÌÇÎÀÌ ³¡³µ´Â°¡?
-    int dialogNumber = 0; //´ëÈ­ ¹®´Ü ¼ıÀÚ.
+    bool isTypingEnd = false; //íƒ€ì´í•‘ì´ ëë‚¬ëŠ”ê°€?
+    int dialogNumber = 0; //ëŒ€í™” ë¬¸ë‹¨ ìˆ«ì.
 
-    float timer; //³»ºÎÀûÀ¸·Î µ¹¾Æ°¡´Â ½Ã°£ Å¸ÀÌ¸Ó
+    float timer; //ë‚´ë¶€ì ìœ¼ë¡œ ëŒì•„ê°€ëŠ” ì‹œê°„ íƒ€ì´ë¨¸
 
     private void Awake()
     {
@@ -44,14 +44,14 @@ public class TypingManager : MonoBehaviour
         tmpSave = textObj;
         if (dialogNumber < dialogs.Length)
         {
-            char[] chars = dialogs[dialogNumber].ToCharArray(); //¹Ş¾Æ¿Â ´ÙÀÌ¾ó ·Î±×¸¦ char·Î º¯È¯.
-            StartCoroutine(Typer(chars, textObj)); //·¹ÆÛ·±½º·Î ³Ñ°Üº¸´Â°Å Å×½ºÆ® ÇØº¸ÀÚ.
+            char[] chars = dialogs[dialogNumber].ToCharArray(); //ë°›ì•„ì˜¨ ë‹¤ì´ì–¼ ë¡œê·¸ë¥¼ charë¡œ ë³€í™˜.
+            StartCoroutine(Typer(chars, textObj)); //ë ˆí¼ëŸ°ìŠ¤ë¡œ ë„˜ê²¨ë³´ëŠ”ê±° í…ŒìŠ¤íŠ¸ í•´ë³´ì.
         }
         else
         {
-            //¹®ÀåÀÌ ³¡³µÀ¸¹Ç·Î ´Ù¸¥ ¹®ÀåÀ» ¹ŞÀ» ÁØºñ... ´ÙÀÌ¾ó·Î±× ÃÊ±âÈ­, ´ÙÀÌ¾ó·Î±× ¼¼ÀÌºê¿Í Æ¼¿¥ÇÇ ¼¼ÀÌºê ÃÊ±âÈ­
+            //ë¬¸ì¥ì´ ëë‚¬ìœ¼ë¯€ë¡œ ë‹¤ë¥¸ ë¬¸ì¥ì„ ë°›ì„ ì¤€ë¹„... ë‹¤ì´ì–¼ë¡œê·¸ ì´ˆê¸°í™”, ë‹¤ì´ì–¼ë¡œê·¸ ì„¸ì´ë¸Œì™€ í‹°ì— í”¼ ì„¸ì´ë¸Œ ì´ˆê¸°í™”
             tmpSave.text = "";
-            isDialogEnd = true; // È£ÃâÀÚ´Â ´ÙÀÌ¾Ë·Î±× ¿£µå¸¦ º¸°í ´ÙÀ½ µ¿ÀÛÀ» ÁøÇàÇØÁÖ¸é µÊ.
+            isDialogEnd = true; // í˜¸ì¶œìëŠ” ë‹¤ì´ì•Œë¡œê·¸ ì—”ë“œë¥¼ ë³´ê³  ë‹¤ìŒ ë™ì‘ì„ ì§„í–‰í•´ì£¼ë©´ ë¨.
             dialogsSave = null;
             tmpSave = null;
             dialogNumber = 0;
@@ -60,25 +60,25 @@ public class TypingManager : MonoBehaviour
 
     public void GetInputDown()
     {
-        //ÀÎÇ²ÀÌ µé¾î¿ÔÀ»¶§ -> ÅØ½ºÆ®°¡ ÁøÇàÁßÀÌ¸é ºü¸£°Ô ÁøÇàµÇ°í ÅØ½ºÆ®°¡ ¸¶°¨µÇ¾îÀÖÀ¸¸é ´ÙÀ½ ÅØ½ºÆ®·Î ³Ñ¾î°¨.
-        //±×¸®°í ÀÎÇ²ÀÌ Äµ½½µÇ¸é ´Ù½Ã ¹®ÀÚ¿­ ¼Óµµ¸¦ Á¤»óÈ­ ½ÃÄÑ¾ßÇÔ.
+        //ì¸í’‹ì´ ë“¤ì–´ì™”ì„ë•Œ -> í…ìŠ¤íŠ¸ê°€ ì§„í–‰ì¤‘ì´ë©´ ë¹ ë¥´ê²Œ ì§„í–‰ë˜ê³  í…ìŠ¤íŠ¸ê°€ ë§ˆê°ë˜ì–´ìˆìœ¼ë©´ ë‹¤ìŒ í…ìŠ¤íŠ¸ë¡œ ë„˜ì–´ê°.
+        //ê·¸ë¦¬ê³  ì¸í’‹ì´ ìº”ìŠ¬ë˜ë©´ ë‹¤ì‹œ ë¬¸ìì—´ ì†ë„ë¥¼ ì •ìƒí™” ì‹œì¼œì•¼í•¨.
         if (dialogsSave != null)
         {
             if (isTypingEnd)
             {
-                tmpSave.text = ""; //ºñ¾îÀÖ´Â ¹®Àå ³Ñ°Ü¼­ ÃÊ±âÈ­. 
+                tmpSave.text = ""; //ë¹„ì–´ìˆëŠ” ë¬¸ì¥ ë„˜ê²¨ì„œ ì´ˆê¸°í™”. 
                 Typing(dialogsSave, tmpSave);
             }
             else
             {
-                characterTime = timeForCharacter_Fast; //ºü¸¥ ¹®Àå ³Ñ±è.
+                characterTime = timeForCharacter_Fast; //ë¹ ë¥¸ ë¬¸ì¥ ë„˜ê¹€.
             }
         }
     }
 
     public void GetInputUp()
     {
-        //ÀÎÇ²ÀÌ ³¡³µÀ»¶§.
+        //ì¸í’‹ì´ ëë‚¬ì„ë•Œ.
         if (dialogsSave != null)
         {
             characterTime = timeForCharacter;
@@ -102,7 +102,7 @@ public class TypingManager : MonoBehaviour
             {
                 textObj.text += chars[currentChar].ToString();
                 currentChar++;
-                timer = characterTime; //Å¸ÀÌ¸Ó ÃÊ±âÈ­
+                timer = characterTime; //íƒ€ì´ë¨¸ ì´ˆê¸°í™”
             }
         }
         if (currentChar >= charLength)

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -117,11 +117,11 @@ public class EndTalkManager : MonoBehaviour
 
     void GenerateData()
     {
-        talkData.Add(1, "¾Õ¿¡ ½ÅÀÌ ÀÖ´Ù. ´ëÈ­¸¦ °É¾îº¸ÀÚ");
+        talkData.Add(1, "ì•ì— ì‹ ì´ ìˆë‹¤. ëŒ€í™”ë¥¼ ê±¸ì–´ë³´ì");
         talkData.Add(2, "");
 
-        talkData2.Add(1, "¾Ë°Ú¾î¿ä, Å©·¹¾ÆÅä¸£¸¦ ±¸ÇØÁÖ¼Å¼­ °¨»çÇÕ´Ï´Ù ¿ë»ç¿©  ´ç½ÅÀÇ ¼Ò¿øÀº ¹¹ÁÒ?");
-        talkData2.Add(2, "³» ¼Ò¿øÀº¡¦!");
+        talkData2.Add(1, "ì•Œê² ì–´ìš”, í¬ë ˆì•„í† ë¥´ë¥¼ êµ¬í•´ì£¼ì…”ì„œ ê°ì‚¬í•©ë‹ˆë‹¤ ìš©ì‚¬ì—¬  ë‹¹ì‹ ì˜ ì†Œì›ì€ ë­ì£ ?");
+        talkData2.Add(2, "ë‚´ ì†Œì›ì€â€¦!");
         talkData2.Add(3, "");
     }
     void GenerateDataENG()
