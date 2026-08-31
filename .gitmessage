@@ -1,0 +1,14 @@
+# <type>(<optional-scope>): <summary>
+#
+# Why:
+#
+# What:
+#
+# 검증:
+#   - 확인한 것과 확인하지 못한 것을 나눠서 적는다
+#
+# 허용 타입:
+# feat, fix, refactor, docs, test, chore, ci, perf
+#
+# 예:
+# refactor(boss): 사망 처리를 OnBossDefeated() 1회 실행으로 전환
