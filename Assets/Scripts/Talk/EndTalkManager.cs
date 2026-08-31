@@ -2,182 +2,66 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 
-public class EndTalkManager : MonoBehaviour
+// 엔딩 대화. 채널 2개와 페이드아웃.
+public class EndTalkManager : TalkManagerBase
 {
-    AllUnits.Unit unit;
-    Dictionary<int, string> talkData, talkData2;
-    Dictionary<int, string> talkDataENG, talkDataENG2;
     public GameObject TalkPannel, TalkPannel2;
     public Image Portrait, Portrait2;
     public Text talk, talk2;
-    public Sprite God, Sword, Spear, Shield;
-    Sprite CharSprite;
-    public GameObject PL;
-    public int CharCodecopy;
-    public static int DataNum,DataNum2;
+
+    // TalkTrigger 가 읽는 진행도. 채널이 람다로 읽고 쓴다.
+    public static int DataNum, DataNum2;
 
     public CanvasGroup Endingpannel;
     public float fadeCount, count;
     public GameObject endingpannel;
+
+    protected override Channel[] BuildChannels()
+    {
+        return new Channel[]
+        {
+            new Channel
+            {
+                Panel = TalkPannel, Portrait = Portrait, Label = talk, End = 3,
+                Read = () => DataNum, Write = v => DataNum = v,
+                PortraitFor = n => (n == 1 || n == 2) ? CharSprite : God,
+            },
+            new Channel
+            {
+                Panel = TalkPannel2, Portrait = Portrait2, Label = talk2, End = 4,
+                Read = () => DataNum2, Write = v => DataNum2 = v,
+                // 다른 채널과 반대다. 2·4 에서 신, 그 외에 캐릭터.
+                PortraitFor = n => (n == 2 || n == 4) ? God : CharSprite,
+                OnClose = () => { BoolManager.Ending = true; },
+            },
+        };
+    }
+
     private void Start()
     {
         fadeCount = 0f;
     }
-    void Awake()
+
+    protected override void Update()
     {
-        talkData = new Dictionary<int, string>();
-        talkData2 = new Dictionary<int, string>();
-        talkDataENG = new Dictionary<int, string>();
-        talkDataENG2 = new Dictionary<int, string>();
-        DataNum = 1;
-        DataNum2 = 1;
-
-        GenerateData();
-        GenerateDataENG();
-
-
-
-    }
-
-    void Update()
-    {
-
-        PL = GameObject.FindWithTag("Player");
-
-        unit = PL.GetComponent<AllUnits.Unit>();
-
-        if (unit.CharCode == 0)
-        {
-            CharSprite = Sword;
-        }
-        if (unit.CharCode == 1)
-        {
-            CharSprite = Spear;
-        }
-        if (unit.CharCode == 2)
-        {
-            CharSprite = Shield;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space) && TalkPannel.activeSelf == true)
-        {
-            StartCoroutine(ActTalk());
-        }
-        if (Input.GetKeyDown(KeyCode.Space) && TalkPannel2.activeSelf == true)
-        {
-            StartCoroutine(ActTalk2());
-        }
-
-        if (DataNum == 3)
-        {
-            PannelOff();
-        }
-        if (DataNum2 == 4)
-        {
-            PannelOff2();
-
-            BoolManager.Ending = true;
-        }
-
-        if (DataNum == 1 || DataNum == 2)
-        {
-            Portrait.sprite = CharSprite;
-        }
-        else
-        {
-            Portrait.sprite = God;
-
-        }
-
-        if (DataNum2 == 2 || DataNum2 == 4)
-        {
-            Portrait2.sprite = God;
-        }
-        else
-        {
-            Portrait2.sprite = CharSprite;
-        }
+        base.Update();
 
         if (BoolManager.Ending == true)
         {
             endingpannel.SetActive(true);
             StartCoroutine(Ending());
-           
         }
 
-        if(count >= 150)
+        if (count >= 150)
         {
             LoadingSceneController.LoadScene("UI_Main");
         }
     }
 
-    void GenerateData()
-    {
-        talkData.Add(1, "앞에 신이 있다. 대화를 걸어보자");
-        talkData.Add(2, "");
-
-        talkData2.Add(1, "알겠어요, 크레아토르를 구해주셔서 감사합니다 용사여  당신의 소원은 뭐죠?");
-        talkData2.Add(2, "내 소원은…!");
-        talkData2.Add(3, "");
-    }
-    void GenerateDataENG()
-    {
-        talkDataENG.Add(1, "There's the goddess, I'll try to talk to her.");
-        talkDataENG.Add(2, "");
-
-        talkDataENG2.Add(1, "Alright, you've done well. What is your wish?");
-        talkDataENG2.Add(2, "My wish is...");
-        talkDataENG2.Add(3, "");
-    }
-
-
-    IEnumerator ActTalk()
-    {
-        if (LocalizationSettings.SelectedLocale == LocalizationSettings.AvailableLocales.Locales[0])
-        {
-            talk.text = talkDataENG[DataNum];
-
-            DataNum++;
-            yield return new WaitForSeconds(0.5f);
-        }
-        else if (LocalizationSettings.SelectedLocale == LocalizationSettings.AvailableLocales.Locales[1])
-        {
-            talk.text = talkData[DataNum];
-
-            DataNum++;
-            yield return new WaitForSeconds(0.5f);
-        }
-        
-        
-    }
-
-    IEnumerator ActTalk2()
-    {
-        if (LocalizationSettings.SelectedLocale == LocalizationSettings.AvailableLocales.Locales[0])
-        {
-            talk2.text = talkDataENG2[DataNum2];
-
-            DataNum2++;
-            yield return new WaitForSeconds(0.5f);
-        }
-        else if (LocalizationSettings.SelectedLocale == LocalizationSettings.AvailableLocales.Locales[1])
-        {
-            talk2.text = talkData2[DataNum2];
-
-            DataNum2++;
-            yield return new WaitForSeconds(0.5f);
-        }
-        
-
-    }
-
     IEnumerator Ending()
     {
-        while(fadeCount < 1.0f)
+        while (fadeCount < 1.0f)
         {
             fadeCount += 0.0001f;
             yield return new WaitForSeconds(0.1f);
@@ -185,22 +69,27 @@ public class EndTalkManager : MonoBehaviour
         }
 
         count += 0.1f;
- 
     }
 
-    void PannelOff()
+    protected override void GenerateData()
     {
-        Time.timeScale = 1f;
-        TalkPannel.SetActive(false);
-        DataNum++;
+        channels[0].Ko.Add(1, "앞에 신이 있다. 대화를 걸어보자");
+        channels[0].Ko.Add(2, "");
+
+        channels[1].Ko.Add(1, "알겠어요, 크레아토르를 구해주셔서 감사합니다 용사여  당신의 소원은 뭐죠?");
+        channels[1].Ko.Add(2, "내 소원은…!");
+        channels[1].Ko.Add(3, "");
+    
     }
 
-    void PannelOff2()
+    protected override void GenerateDataENG()
     {
-        Time.timeScale = 1f;
-        TalkPannel2.SetActive(false);
-        DataNum2++;
+        channels[0].En.Add(1, "There's the goddess, I'll try to talk to her.");
+        channels[0].En.Add(2, "");
 
+        channels[1].En.Add(1, "Alright, you've done well. What is your wish?");
+        channels[1].En.Add(2, "My wish is...");
+        channels[1].En.Add(3, "");
+    
     }
-
 }
