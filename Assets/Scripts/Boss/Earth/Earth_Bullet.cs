@@ -38,8 +38,8 @@ public class Earth_Bullet : MonoBehaviour
             {
                 if (delay <= 0f)
                 {
-                    Debug.Log("플레이어 체력 = " + (player_Hp.currentHealth - EarthBullet_Damage.IceWave_Damage));
-                    player_Hp.TakeDamage(EarthBullet_Damage.IceWave_Damage);
+                    Debug.Log("플레이어 체력 = " + (player_Hp.currentHealth - EarthBullet_Damage.EarthBullet_Damage));
+                    player_Hp.TakeDamage(EarthBullet_Damage.EarthBullet_Damage);
                     // 체력 감소
                     delay = 0.8f;
                 }
