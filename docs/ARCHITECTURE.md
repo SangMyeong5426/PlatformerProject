@@ -102,7 +102,7 @@ Monster_Bullet  Monster_chase  Monster_chase_far  Monster_chase_Test2
 | `Monster/` | 일반 몬스터의 상태·추적·원거리 공격 |
 | `Scene/` | 씬 전환, `GameManager`, 일시정지, 로딩, 사망 패널 |
 | `UI/` | 체력·마나 바, 쿨타임, 남은 몬스터 수, 맵 이름 |
-| `Talk/` | 대화 매니저 3종, 타이핑 효과, `TalkTrigger`, 봉인(`B_Test`)과 Bongin NPC |
+| `Talk/` | 공통 골격 `TalkManagerBase` 와 매니저 3종, `TalkTrigger`, 봉인(`B_Test`)과 Bongin NPC |
 | `Item/` | 인벤토리, 슬롯, 드롭, 보석 |
 | `Select/` | 캐릭터 선택과 모드 선택 |
 | `Sound/` | BGM·SFX 매니저와 컨트롤 |
@@ -113,10 +113,10 @@ Monster_Bullet  Monster_chase  Monster_chase_far  Monster_chase_Test2
 
 배치와 별개로 **아직 정리되지 않은 것**들이다.
 
-- **`Talk/` 가 762줄이고 매니저 3개가 같은 골격이다.** `TalkManager` 258 /
-  `EndTalkManager` 206 / `BonginTalkManager` 107 이 채널 수만 다르다. 대사가 코드에
-  하드코딩돼 있는데 프로젝트는 이미 Unity Localization 을 쓴다. `Talk/` 파일 일부는 아직
-  CP949 라 편집 전 인코딩 정규화가 필요하다
+- **대사가 코드에 하드코딩돼 있다.** `TalkManagerBase.Channel` 의 `Ko`/`En` 딕셔너리를
+  `GenerateData()`/`GenerateDataENG()` 가 채운다. 프로젝트는 이미 Unity Localization 을
+  쓰고 있어 문자열 테이블로 옮길 수 있다. 매니저 3종의 공통 골격은 정리했지만 대사의
+  자리는 그대로다 — [`followups`](followups.md) 8번
 - **클래스 이름이 내용을 말하지 않는 것들이 있다.** `Stage_2_monster`(얼음 보스),
   `One_Stage_Boss`(대지 보스), `Mosnter_Repeat`(오타), `Postion`(오타), `SfxManger`(오타)
 - **의존 관계가 얽혀 있다.** `Basic_Boss` 가 `BoolManager` 를, `Item/Gemstone` 이
