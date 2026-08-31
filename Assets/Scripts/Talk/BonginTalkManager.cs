@@ -72,8 +72,8 @@ public class BonginTalkManager : MonoBehaviour
 
     void GenerateDataENG()
     {
-        talkData.Add(1, "Press B to seal!");
-        talkData.Add(2, "");
+        talkDataENG.Add(1, "Press B to seal!");
+        talkDataENG.Add(2, "");
     }
 
 
