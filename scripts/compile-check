@@ -29,6 +29,7 @@ import argparse
 import glob
 import io
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -59,15 +60,29 @@ def nunit_dll():
     return sorted(found)[-1] if found else None
 
 
-def references(data):
-    """BCL, UnityEngine 모듈, 프로젝트가 이미 컴파일해 둔 패키지 어셈블리, netstandard."""
+def references(data, editor=False):
+    """BCL, UnityEngine 모듈, 프로젝트가 이미 컴파일해 둔 패키지 어셈블리, netstandard.
+
+    editor=False 면 UnityEditor 를 빼서 **런타임 코드가 에디터 API 를 쓰면 걸리게** 한다.
+    Unity 도 같은 경계로 Assembly-CSharp 과 Assembly-CSharp-Editor 를 나눈다.
+    """
     # -noconfig 를 쓰므로 기본 참조가 하나도 안 붙는다. LINQ(System.Core)처럼
     # Unity 라면 당연히 있는 것도 직접 넣어야 한다.
     mono = os.path.join(data, "MonoBleedingEdge", "lib", "mono", "unityjit-win32")
     refs = [os.path.join(mono, name) for name in ("System.dll", "System.Core.dll")]
     refs = [r for r in refs if os.path.exists(r)]
 
-    refs += sorted(glob.glob(os.path.join(data, "Managed", "UnityEngine", "*.dll")))
+    # UnityEditor 어셈블리는 Managed/UnityEngine/ 안에 이미 다 들어 있다. 여기에 더해
+    # Managed/UnityEditor.dll 을 또 넣으면 CS1704(같은 이름 어셈블리 중복)로 컴파일이
+    # 통째로 죽는다. 한 번 물렸다.
+    #
+    # 런타임 패스에서는 UnityEditor* 를 전부 뺀다. UnityEditor.dll 하나만 빼는 것으로는
+    # 부족하다 - EditorApplication 같은 것이 UnityEditor.CoreModule.dll 에 들어 있어서
+    # 하나만 빼면 경계가 안 선다. 이것도 실측으로 확인했다.
+    for path in sorted(glob.glob(os.path.join(data, "Managed", "UnityEngine", "*.dll"))):
+        if not editor and os.path.basename(path).startswith("UnityEditor"):
+            continue
+        refs.append(path)
 
     # Library/ScriptAssemblies 는 Unity 가 마지막으로 컴파일한 결과다. 패키지
     # 어셈블리(Localization, TextMeshPro 등)를 여기서 가져온다.
@@ -86,6 +101,63 @@ def references(data):
     if nunit:
         refs.append(nunit)
     return refs
+
+
+def collect_sources():
+    """런타임 소스와 에디터 소스를 나눠서 모은다.
+
+    Unity 는 Editor/ 폴더 아래를 Assembly-CSharp-Editor 로 따로 컴파일한다.
+    여기서도 같은 경계를 쓴다.
+    """
+    runtime, editor = [], []
+    for root in SOURCE_DIRS:
+        for dirpath, _dirs, files in os.walk(root):
+            is_editor = "Editor" in dirpath.replace("\\", "/").split("/")
+            for f in files:
+                if not f.endswith(".cs"):
+                    continue
+                (editor if is_editor else runtime).append(os.path.join(dirpath, f))
+    runtime.sort()
+    editor.sort()
+    return runtime, editor
+
+
+def compile_once(mcs, mscorlib, refs, defines, sources):
+    tmp = tempfile.mkdtemp(prefix="compile-check-")
+    rsp = os.path.join(tmp, "args.rsp")
+
+    # 경로에 공백이 있으므로 응답 파일의 모든 경로를 따옴표로 감싼다.
+    lines = ['-r:"%s"' % r for r in refs] + ['"%s"' % s for s in sources]
+    io.open(rsp, "w", encoding="utf-8").write("\n".join(lines) + "\n")
+
+    proc = subprocess.run(
+        [mcs, "-target:library", "-nostdlib", "-noconfig",
+         "-out:" + os.path.join(tmp, "out.dll"), "-r:" + mscorlib] + defines + ["@" + rsp],
+        cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    text = proc.stdout.decode("utf-8", "replace")
+    lines = text.split("\n")
+
+    # 오류 판정을 "): error " 로 하면 **파일·행 번호가 없는 오류를 놓친다.**
+    # CS1704(어셈블리 중복) 같은 것이 그렇고, 그때는 컴파일이 통째로 죽는데도
+    # 도구가 PASS 를 냈다. 실제로 겪었다. 그래서 "error CS" 로 넓히고,
+    # 그래도 못 잡는 경우에 대비해 종료 코드까지 본다.
+    errors = [l for l in lines if re.search(r"\berror CS\d+", l)]
+    warnings = [l for l in lines if re.search(r"\bwarning CS\d+", l)]
+
+    if proc.returncode != 0 and not errors:
+        errors = ["mcs 가 종료 코드 %d 로 실패했는데 오류 줄을 못 찾았다. 원문:"
+                  % proc.returncode] + [l for l in lines if l.strip()][:20]
+
+    return errors, warnings
+
+
+def fail(errors, which):
+    print("FAIL  %s error %d개" % (which, len(errors)))
+    for line in errors[:30]:
+        print("  " + line.strip())
+    if len(errors) > 30:
+        print("  ... %d개 더" % (len(errors) - 30))
+    return 1
 
 
 def main():
@@ -111,48 +183,31 @@ def main():
         sys.stderr.write("mcs 를 찾지 못했다: %s\n" % mcs)
         return 2
 
-    sources = []
-    for root in SOURCE_DIRS:
-        for dirpath, _dirs, files in os.walk(root):
-            for f in files:
-                if f.endswith(".cs"):
-                    sources.append(os.path.join(dirpath, f))
-    sources.sort()
-    if not sources:
+    runtime, editor = collect_sources()
+    if not runtime:
         sys.stderr.write("컴파일할 소스가 없다: %s\n" % " ".join(SOURCE_DIRS))
         return 2
-
-    tmp = tempfile.mkdtemp(prefix="compile-check-")
-    rsp = os.path.join(tmp, "args.rsp")
-    out = os.path.join(tmp, "out.dll")
-
-    # 경로에 공백이 있으므로 응답 파일의 모든 경로를 따옴표로 감싼다.
-    lines = ['-r:"%s"' % r for r in references(data)]
-    lines += ['"%s"' % s for s in sources]
-    io.open(rsp, "w", encoding="utf-8").write("\n".join(lines) + "\n")
 
     # 테스트 파일은 #if UNITY_INCLUDE_TESTS 로 감싸져 있다. nunit 이 있을 때만 정의해
     # 컴파일 대상에 넣는다. 없으면 테스트가 통째로 빠지고 나머지는 그대로 검사된다.
     defines = ["-define:UNITY_INCLUDE_TESTS"] if nunit_dll() else []
+    refs = references(data)
 
-    proc = subprocess.run(
-        [mcs, "-target:library", "-nostdlib", "-noconfig",
-         "-out:" + out, "-r:" + mscorlib] + defines + ["@" + rsp],
-        cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    text = proc.stdout.decode("utf-8", "replace")
-
-    errors = [l for l in text.split("\n") if "): error " in l]
-    warnings = [l for l in text.split("\n") if "): warning " in l]
-
+    # 1패스 - 런타임 코드. 경고는 여기서만 센다.
+    errors, warnings = compile_once(mcs, mscorlib, refs, defines, runtime)
     if errors:
-        print("FAIL  error %d개" % len(errors))
-        for line in errors[:30]:
-            print("  " + line.strip())
-        if len(errors) > 30:
-            print("  ... %d개 더" % (len(errors) - 30))
-        return 1
+        return fail(errors, "런타임")
 
-    print("PASS  소스 %d개, error 0개, warning %d개" % (len(sources), len(warnings)))
+    # 2패스 - 에디터 스크립트. UnityEditor 를 참조에 넣고 런타임 코드와 함께 컴파일한다.
+    # 경고는 1패스에서 이미 셌으므로 여기서는 오류만 본다.
+    if editor:
+        editor_errors, _ = compile_once(
+            mcs, mscorlib, references(data, editor=True), defines, runtime + editor)
+        if editor_errors:
+            return fail(editor_errors, "에디터")
+
+    print("PASS  런타임 %d개 + 에디터 %d개, error 0개, warning %d개"
+          % (len(runtime), len(editor), len(warnings)))
     if args.warnings:
         for line in warnings:
             print("  " + line.strip())
