@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,12 +10,12 @@ public class Player_Skill_Spear : MonoBehaviour
     protected bool isKnockback;
     //public GameObject explo;
 
-    public GameObject Attacked_Effect; //ÀÌÆåÆ®
+    public GameObject Attacked_Effect; //ì´í™íŠ¸
 
     public GameObject Player;
     AllUnits.Unit Pl_Dam;
 
-    public AudioClip[] clip; // ¿Àµğ¿À º¯¼ö 0 = Monster_Attacked --> ÇÇ°İ»ç¿îµå
+    public AudioClip[] clip; // ì˜¤ë””ì˜¤ ë³€ìˆ˜ 0 = Monster_Attacked --> í”¼ê²©ì‚¬ìš´ë“œ
 
     //float x = 1;
     //float y = -1f;
@@ -29,7 +29,7 @@ public class Player_Skill_Spear : MonoBehaviour
         Pl_Dam = Player.GetComponent<AllUnits.Unit>();
     }
 
-    /*private void OnTriggerEnter2D(Collider2D collision) // ³Ë¹é ½ºÅ©¸³Æ®
+    /*private void OnTriggerEnter2D(Collider2D collision) // ë„‰ë°± ìŠ¤í¬ë¦½íŠ¸
     {
         if (collision.gameObject.CompareTag("Monster"))
         {
@@ -61,26 +61,26 @@ public class Player_Skill_Spear : MonoBehaviour
         rigid_spear.velocity = transform.right* -1 * skill_speed;
         this.gameObject.transform.Rotate(0, 0, 5 * Time.deltaTime);
         Destroy(gameObject, 3f);
-        //rigid_spear.velocity = new Vector2(1, -1); // ´ë°¢¼± Ã¢
+        //rigid_spear.velocity = new Vector2(1, -1); // ëŒ€ê°ì„  ì°½
         //rigid_spear.AddForce(Vector2.left * skill_speed);
         
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Monster") //Monster ÅÂ±×¿Í Ãæµ¹ÇÏ¸é
+        if (collision.tag == "Monster") //Monster íƒœê·¸ì™€ ì¶©ëŒí•˜ë©´
         {
             GameObject Atk_Ef = Instantiate(Attacked_Effect, collision.transform.position, collision.transform.rotation);
-            GameObject Atk_Ef_2 = Instantiate(Attacked_Effect, collision.transform.position + Vector3.right + Vector3.up, collision.transform.rotation); // ½ºÅ³ÀÌÆåÆ®
+            GameObject Atk_Ef_2 = Instantiate(Attacked_Effect, collision.transform.position + Vector3.right + Vector3.up, collision.transform.rotation); // ìŠ¤í‚¬ì´í™íŠ¸
             Destroy(Atk_Ef, 0.5f);
             Destroy(Atk_Ef_2, 0.5f);
-            // Health ½ºÅ©¸³Æ® °¡Á®¿À±â
+            // Health ìŠ¤í¬ë¦½íŠ¸ ê°€ì ¸ì˜¤ê¸°
             Monster_Stats Monster_Hp = collision.gameObject.GetComponent<Monster_Stats>();
             if (Monster_Hp != null)
             {
-                Debug.Log("¸ó½ºÅÍ ½ºÅ³ ÇÇ°İ" + (Monster_Hp.Monster_currentHp - Pl_Dam.SkillDamage_Spear));
+                Debug.Log("ëª¬ìŠ¤í„° ìŠ¤í‚¬ í”¼ê²©" + (Monster_Hp.Monster_currentHp - Pl_Dam.SkillDamage_Spear));
                 Monster_Hp.Monster_TakeDamage(Pl_Dam.SkillDamage_Spear);
                 SfxManger.instance.SfxPlay("Monster_Attacked", clip[0]);
-                // Ã¼·Â °¨¼Ò
+                // ì²´ë ¥ ê°ì†Œ
             }
         }
     }

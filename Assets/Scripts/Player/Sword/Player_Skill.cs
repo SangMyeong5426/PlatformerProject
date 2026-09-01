@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,20 +7,20 @@ public class Player_Skill : MonoBehaviour
     private Rigidbody2D rigid_bullet;
     public float skill_speed = 5.0f;
     protected bool isKnockback;
-    GameObject[] Enemys; //³Ë¹é º¯¼ö
+    GameObject[] Enemys; //ë„‰ë°± ë³€ìˆ˜
 
     public GameObject Attacked_Effect;
 
     public GameObject Player;
     AllUnits.Unit Pl_Dam;
 
-    public AudioClip[] clip; // ¿Àµğ¿À º¯¼ö 0 = Monster_Attacked --> ÇÇ°İ»ç¿îµå
+    public AudioClip[] clip; // ì˜¤ë””ì˜¤ ë³€ìˆ˜ 0 = Monster_Attacked --> í”¼ê²©ì‚¬ìš´ë“œ
 
     // Start is called before the first frame update
     void Start()
     {
         rigid_bullet = GetComponent<Rigidbody2D>();
-        Enemys = GameObject.FindGameObjectsWithTag("Monster"); // ³Ë¹é
+        Enemys = GameObject.FindGameObjectsWithTag("Monster"); // ë„‰ë°±
         Pl_Dam = Player.GetComponent<AllUnits.Unit>();
     }
 
@@ -28,33 +28,33 @@ public class Player_Skill : MonoBehaviour
     void Update()
     {
         //rigid_bullet.velocity = transform.right *-1 * skill_speed;
-        Destroy(gameObject,0.5f); //¼Òµå ½ºÅ³ »ç¶óÁö±â
+        Destroy(gameObject,0.5f); //ì†Œë“œ ìŠ¤í‚¬ ì‚¬ë¼ì§€ê¸°
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Monster") //Monster ÅÂ±×¿Í Ãæµ¹ÇÏ¸é
+        if (collision.tag == "Monster") //Monster íƒœê·¸ì™€ ì¶©ëŒí•˜ë©´
         {
-            StartCoroutine(Effect_Delay(collision.transform.position, collision.transform.rotation)); // collision À§Ä¡°ª È¸Àü°ª ¹Ş¾Æ¿È
+            StartCoroutine(Effect_Delay(collision.transform.position, collision.transform.rotation)); // collision ìœ„ì¹˜ê°’ íšŒì „ê°’ ë°›ì•„ì˜´
             StartCoroutine(Effect_Delay(collision.transform.position + Vector3.right + Vector3.down, collision.transform.rotation));
-            // Health ½ºÅ©¸³Æ® °¡Á®¿À±â
+            // Health ìŠ¤í¬ë¦½íŠ¸ ê°€ì ¸ì˜¤ê¸°
             Monster_Stats Monster_Hp = collision.gameObject.GetComponent<Monster_Stats>();
             if (Monster_Hp != null)
             {
-                Debug.Log("¸ó½ºÅÍ ½ºÅ³ ÇÇ°İ" + (Monster_Hp.Monster_currentHp - Pl_Dam.SkillDamage_Sword));
+                Debug.Log("ëª¬ìŠ¤í„° ìŠ¤í‚¬ í”¼ê²©" + (Monster_Hp.Monster_currentHp - Pl_Dam.SkillDamage_Sword));
                 Monster_Hp.Monster_TakeDamage(Pl_Dam.SkillDamage_Sword);
                 SfxManger.instance.SfxPlay("Monster_Attacked", clip[0]);
-                // Ã¼·Â °¨¼Ò
+                // ì²´ë ¥ ê°ì†Œ
             }
         }
     }
 
-    IEnumerator Effect_Delay(Vector3 position, Quaternion rotation) //¸Å°³º¯¼ö ¹Ş±â
+    IEnumerator Effect_Delay(Vector3 position, Quaternion rotation) //ë§¤ê°œë³€ìˆ˜ ë°›ê¸°
     {
-        yield return new WaitForSeconds(0.2f); //2ÃÊ ÈÄ
-        GameObject Atk_Ef = Instantiate(Attacked_Effect, position, rotation); //ÀÌÆåÆ® µîÀå
-        GameObject Atk_Ef_1 = Instantiate(Attacked_Effect, position, rotation); //ÀÌÆåÆ® µîÀå
-        Destroy(Atk_Ef, 0.5f); //ÀÌÆåÆ® »ç¶óÁø´Ù¿ä
-        Destroy(Atk_Ef_1, 0.5f); //ÀÌÆåÆ® »ç¶óÁø´Ù¿ä
+        yield return new WaitForSeconds(0.2f); //2ì´ˆ í›„
+        GameObject Atk_Ef = Instantiate(Attacked_Effect, position, rotation); //ì´í™íŠ¸ ë“±ì¥
+        GameObject Atk_Ef_1 = Instantiate(Attacked_Effect, position, rotation); //ì´í™íŠ¸ ë“±ì¥
+        Destroy(Atk_Ef, 0.5f); //ì´í™íŠ¸ ì‚¬ë¼ì§„ë‹¤ìš”
+        Destroy(Atk_Ef_1, 0.5f); //ì´í™íŠ¸ ì‚¬ë¼ì§„ë‹¤ìš”
     }
 }

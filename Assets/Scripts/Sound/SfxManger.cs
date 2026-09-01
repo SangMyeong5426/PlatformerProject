@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -8,12 +8,12 @@ using UnityEngine.SceneManagement;
 public class SfxManger : MonoBehaviour
 {
     public AudioClip[] bgmlist;
-    public AudioSource bgm; //¹è°æÀ½ ¿Àµğ¿À¼Ò½º
-    public static SfxManger instance; //½Ì±ÛÅÏ
-    public AudioMixer mixer; //¿Àµğ¿À ¹Í¼­ º¯¼ö
+    public AudioSource bgm; //ë°°ê²½ìŒ ì˜¤ë””ì˜¤ì†ŒìŠ¤
+    public static SfxManger instance; //ì‹±ê¸€í„´
+    public AudioMixer mixer; //ì˜¤ë””ì˜¤ ë¯¹ì„œ ë³€ìˆ˜
 
-    public Slider Sfx_Slider; // À¯¾ÆÀÌ È¿°úÀ½ ½½¶óÀÌ´õ
-    public Slider Bgm_Slider; // À¯¾ÆÀÌ ¹è°æÀ½ ½½¶óÀÌ´õ
+    public Slider Sfx_Slider; // ìœ ì•„ì´ íš¨ê³¼ìŒ ìŠ¬ë¼ì´ë”
+    public Slider Bgm_Slider; // ìœ ì•„ì´ ë°°ê²½ìŒ ìŠ¬ë¼ì´ë”
 
     private GameObject Music_Check;
 
@@ -28,9 +28,9 @@ public class SfxManger : MonoBehaviour
         
         if (instance == null)
         {
-            instance = this; //ÀÌ Å¬·¡½º ÀÎ½ºÅÏ½º°¡ Åº»ıÇßÀ» ¶§ Àü¿ªº¯¼ö instance¿¡ »ç¿îµå¸Å´ÏÀú ÀÎ½ºÅÏ½º°¡ ´ã°ÜÀÖÁö ¾Ê´Ù¸é, ÀÚ½ÅÀ» ³Ö¾îÁØ´Ù
-            DontDestroyOnLoad(instance); //»ç¶óÁöÁö¾Ê°Ô
-            SceneManager.sceneLoaded += OnSceneLoaded; //¾À ÀÌµ¿ ½Ã bgm ¸Ş¼­µå È£Ãâ
+            instance = this; //ì´ í´ë˜ìŠ¤ ì¸ìŠ¤í„´ìŠ¤ê°€ íƒ„ìƒí–ˆì„ ë•Œ ì „ì—­ë³€ìˆ˜ instanceì— ì‚¬ìš´ë“œë§¤ë‹ˆì € ì¸ìŠ¤í„´ìŠ¤ê°€ ë‹´ê²¨ìˆì§€ ì•Šë‹¤ë©´, ìì‹ ì„ ë„£ì–´ì¤€ë‹¤
+            DontDestroyOnLoad(instance); //ì‚¬ë¼ì§€ì§€ì•Šê²Œ
+            SceneManager.sceneLoaded += OnSceneLoaded; //ì”¬ ì´ë™ ì‹œ bgm ë©”ì„œë“œ í˜¸ì¶œ
         }
         else
         {
@@ -41,17 +41,17 @@ public class SfxManger : MonoBehaviour
     {   
         for (int i = 0; i < bgmlist.Length; i++)
         {
-            if(arg0.name == bgmlist[i].name) // ¾ÀÀÇ ÀÌ¸§Àº ¸Å°³º¯¼ö¸¦ ÅëÇØ¼­ ¾Ë¼öÀÖÀ½ ±×¸®°í ¾ÀÀÇ ÀÌ¸§°ú Å¬¸³ÀÇ ÀÌ¸§ÀÌ °°Àº°ÍÀ»
-                BgmPlay(bgmlist[i]); // Àç»ı
-            if (GameObject.Find("Music_Chk")) // Music_Chk °ÔÀÓ¿ÀºêÁ§Æ® Ã£À¸¸é --> Æ©Åä¸®¾ó ¸Ê¿¡ Á¸Àç
+            if(arg0.name == bgmlist[i].name) // ì”¬ì˜ ì´ë¦„ì€ ë§¤ê°œë³€ìˆ˜ë¥¼ í†µí•´ì„œ ì•Œìˆ˜ìˆìŒ ê·¸ë¦¬ê³  ì”¬ì˜ ì´ë¦„ê³¼ í´ë¦½ì˜ ì´ë¦„ì´ ê°™ì€ê²ƒì„
+                BgmPlay(bgmlist[i]); // ì¬ìƒ
+            if (GameObject.Find("Music_Chk")) // Music_Chk ê²Œì„ì˜¤ë¸Œì íŠ¸ ì°¾ìœ¼ë©´ --> íŠœí† ë¦¬ì–¼ ë§µì— ì¡´ì¬
             {
-                StopMusic(bgmlist[i]); // ¹è°æÀ½ Á¤Áö
-                //Sfx_Slider.value = 1; // ½½¶óÀÌ´õ °ª ÃÊ±âÈ­
-                //Bgm_Slider.value = 1; // ½½¶óÀÌ´õ °ª ÃÊ±âÈ­
+                StopMusic(bgmlist[i]); // ë°°ê²½ìŒ ì •ì§€
+                //Sfx_Slider.value = 1; // ìŠ¬ë¼ì´ë” ê°’ ì´ˆê¸°í™”
+                //Bgm_Slider.value = 1; // ìŠ¬ë¼ì´ë” ê°’ ì´ˆê¸°í™”
             }
         }
     }
-    public void SaveSoundVolume() // »ç¿îµå Á¶Àı ÀúÀå
+    public void SaveSoundVolume() // ì‚¬ìš´ë“œ ì¡°ì ˆ ì €ì¥
     {
         float sfxVolume = Mathf.Log10(Sfx_Slider.value) * 20;
         float bgmVolume = Mathf.Log10(Bgm_Slider.value) * 20;
@@ -61,7 +61,7 @@ public class SfxManger : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public void LoadSoundVolume() // »ç¿îµå ºÒ·¯¿À±â
+    public void LoadSoundVolume() // ì‚¬ìš´ë“œ ë¶ˆëŸ¬ì˜¤ê¸°
     {
         if (PlayerPrefs.HasKey(SFXVolumeKey))
         {
@@ -78,43 +78,43 @@ public class SfxManger : MonoBehaviour
         }
     }
 
-    public void SetSoundVolume() // »ç¿îµå Á¶Àı
+    public void SetSoundVolume() // ì‚¬ìš´ë“œ ì¡°ì ˆ
     {
         mixer.SetFloat("SFX", Mathf.Log10(Sfx_Slider.value) * 20);
         mixer.SetFloat("BGM", Mathf.Log10(Bgm_Slider.value) * 20);
 
     }
     
-    public void SfxPlay(string sfxName, AudioClip clip) // »ç¿îµå ¸Å°³º¯¼ö »ç¿îµå ÀÌ¸§, »ç¿îµå Å¬¸³
+    public void SfxPlay(string sfxName, AudioClip clip) // ì‚¬ìš´ë“œ ë§¤ê°œë³€ìˆ˜ ì‚¬ìš´ë“œ ì´ë¦„, ì‚¬ìš´ë“œ í´ë¦½
     {
         GameObject sound = new GameObject(sfxName + "Sound");
         AudioSource audiosource = sound.AddComponent<AudioSource>();
-        audiosource.outputAudioMixerGroup = mixer.FindMatchingGroups("SFX")[0]; // ¿Àµğ¿À ¹Í¼­ ±×·ì °¡Á®¿À±â
+        audiosource.outputAudioMixerGroup = mixer.FindMatchingGroups("SFX")[0]; // ì˜¤ë””ì˜¤ ë¯¹ì„œ ê·¸ë£¹ ê°€ì ¸ì˜¤ê¸°
         audiosource.clip = clip;
         audiosource.Play();
 
         Destroy(sound, clip.length);
     }
 
-     public void BgmPlay(AudioClip clip) // ¹è°æÀ½
+     public void BgmPlay(AudioClip clip) // ë°°ê²½ìŒ
      {
-        bgm.outputAudioMixerGroup = Bgm.instance1.mixer1.FindMatchingGroups("BGM")[0]; // ¿Àµğ¿À ¹Í¼­ ±×·ì °¡Á®¿À±â
+        bgm.outputAudioMixerGroup = Bgm.instance1.mixer1.FindMatchingGroups("BGM")[0]; // ì˜¤ë””ì˜¤ ë¯¹ì„œ ê·¸ë£¹ ê°€ì ¸ì˜¤ê¸°
         bgm.clip = clip;
-        bgm.loop = true; // °è¼Ó ¹İº¹ µÇ°Ô
+        bgm.loop = true; // ê³„ì† ë°˜ë³µ ë˜ê²Œ
         bgm.volume = 0.1f; 
-        bgm.Play(); // ÇÃ·¹ÀÌ ÇÔ¼ö È£Ãâ
+        bgm.Play(); // í”Œë ˆì´ í•¨ìˆ˜ í˜¸ì¶œ
         
 
      }
     // Start is called before the first frame update
     void Start()
     {
-        Music_Check = GameObject.FindGameObjectWithTag("Sfx_Manager"); //¹è°æÀ½ Á¤Áö ¿ÀºêÁ§Æ® ÅÂ±×
+        Music_Check = GameObject.FindGameObjectWithTag("Sfx_Manager"); //ë°°ê²½ìŒ ì •ì§€ ì˜¤ë¸Œì íŠ¸ íƒœê·¸
         LoadSoundVolume();
     }
-    public void StopMusic(AudioClip clip) // ¹è°æÀ½ Á¤Áö ÇÔ¼ö
+    public void StopMusic(AudioClip clip) // ë°°ê²½ìŒ ì •ì§€ í•¨ìˆ˜
     {
-        bgm.outputAudioMixerGroup = mixer.FindMatchingGroups("BGM")[0]; // ¿Àµğ¿À ¹Í¼­ ±×·ì °¡Á®¿À±â
+        bgm.outputAudioMixerGroup = mixer.FindMatchingGroups("BGM")[0]; // ì˜¤ë””ì˜¤ ë¯¹ì„œ ê·¸ë£¹ ê°€ì ¸ì˜¤ê¸°
         bgm.clip = clip;
         bgm.volume = 0.1f;
         bgm.Stop();

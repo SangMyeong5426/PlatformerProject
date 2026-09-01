@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +7,7 @@ namespace AllUnits
 {
     public class Unit : MonoBehaviour
     {
-        // ÇÃ·¹ÀÌ¾î¿Í Àû À¯´ÖÀÌ °øÅëÀ¸·Î »ç¿ëÇÒ º¯¼ö
+        // í”Œë ˆì´ì–´ì™€ ì  ìœ ë‹›ì´ ê³µí†µìœ¼ë¡œ ì‚¬ìš©í•  ë³€ìˆ˜
         [SerializeField] protected float speed = 3f;
         [SerializeField] internal int maxHealth = 50;
         [SerializeField] internal int currentHealth;
@@ -25,15 +25,15 @@ namespace AllUnits
 
         protected bool Player_Die = false;
 
-        public AudioClip[] clip_attacked; // ÇÇ°İ »ç¿îµå 
+        public AudioClip[] clip_attacked; // í”¼ê²© ì‚¬ìš´ë“œ 
 
-        public GameObject Player_Attacked_Effect; // ÇÇ°İ ÀÌÆåÆ®
+        public GameObject Player_Attacked_Effect; // í”¼ê²© ì´í™íŠ¸
 
-        public GameObject me; //ÇÇ°İ ÀÌÆåÆ® À§Ä¡ Body Set
+        public GameObject me; //í”¼ê²© ì´í™íŠ¸ ìœ„ì¹˜ Body Set
 
         private float damageTimer = 0f;
 
-        // ÀÚ½Ä Å¬·¡½ºµéµµ »ç¿ëµÉ ¼ö ÀÖµµ·Ï
+        // ìì‹ í´ë˜ìŠ¤ë“¤ë„ ì‚¬ìš©ë  ìˆ˜ ìˆë„ë¡
         virtual protected void Start()
         {
             currentHealth = maxHealth;
@@ -52,7 +52,7 @@ namespace AllUnits
             Playerdie();
         }
         
-        public void TakeDamage(int Monster_Damage) // ÇÇ°İ 
+        public void TakeDamage(int Monster_Damage) // í”¼ê²© 
         {
 
             GameObject Atk_Ef = Instantiate(Player_Attacked_Effect, me.transform.position, me.transform.rotation);
@@ -73,8 +73,8 @@ namespace AllUnits
                     if (currentHealth <= 0)
                     {
                         
-                        //DIe ¾Ö´Ô ½ÇÇà ¹× »èÁ¦
-                        //Debug.Log("»ç¸Á");
+                        //DIe ì• ë‹˜ ì‹¤í–‰ ë° ì‚­ì œ
+                        //Debug.Log("ì‚¬ë§");
                         
                     }
                     StartCoroutine(NotDam());

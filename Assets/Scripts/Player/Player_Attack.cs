@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ public class Player_Attack : MonoBehaviour
     public float Kb_delayTime = 2f;
     protected float Max_Skill_gauge = 101;
 
-    public GameObject Attacked_Effect; //ÀÌÆåÆ®
+    public GameObject Attacked_Effect; //ì´í™íŠ¸
 
 
     public AudioClip[] clip; // 0 = Sword_Attack, 1 = Spear_Attack, 2 = Shield_Attack, 3 = Monster_Attacked
@@ -36,23 +36,23 @@ public class Player_Attack : MonoBehaviour
     public void Attack_gauge()
     {
         
-        Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(pos.position, player_boxSize, 0); //¹Ú½º¾È¿¡ ³õ¿©Áø ¸ğµç ¿ÀºêÁ§Æ®µéÀ» collider2d[] ¹è¿­¿¡ ´ãÀ½
+        Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(pos.position, player_boxSize, 0); //ë°•ìŠ¤ì•ˆì— ë†“ì—¬ì§„ ëª¨ë“  ì˜¤ë¸Œì íŠ¸ë“¤ì„ collider2d[] ë°°ì—´ì— ë‹´ìŒ
         foreach (Collider2D collider in collider2Ds)
         {
             Monster_Stats Monster_Hp = collider.gameObject.GetComponent<Monster_Stats>();
-            if (collider.tag == "Monster" && Monster_Hp.Monster_currentHp > 0) //Monster ÅÂ±×¿Í Ãæµ¹ÇÏ¸é
+            if (collider.tag == "Monster" && Monster_Hp.Monster_currentHp > 0) //Monster íƒœê·¸ì™€ ì¶©ëŒí•˜ë©´
             {
-                // Health ½ºÅ©¸³Æ® °¡Á®¿À±â
+                // Health ìŠ¤í¬ë¦½íŠ¸ ê°€ì ¸ì˜¤ê¸°
                 //Monster_Stats Monster_Hp = collider.gameObject.GetComponent<Monster_Stats>();
                 if (Monster_Hp != null)
                 {
-                     Debug.Log("¸ó½ºÅÍ ÇÇ°İ" + (Monster_Hp.Monster_currentHp - Player_Dam.damage)); // ¸ó½ºÅÍhp - ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö
+                     Debug.Log("ëª¬ìŠ¤í„° í”¼ê²©" + (Monster_Hp.Monster_currentHp - Player_Dam.damage)); // ëª¬ìŠ¤í„°hp - í”Œë ˆì´ì–´ ë°ë¯¸ì§€
                      Monster_Hp.Monster_TakeDamage(Player_Dam.damage);
-                     GameObject Atk_Ef = Instantiate(Attacked_Effect, pos.position,pos.rotation); // ÀÌÆåÆ® ³ª¿Ã ÀÎ½ºÅÏ¼ÎÀÌÆ®
+                     GameObject Atk_Ef = Instantiate(Attacked_Effect, pos.position,pos.rotation); // ì´í™íŠ¸ ë‚˜ì˜¬ ì¸ìŠ¤í„´ì…°ì´íŠ¸
                      Destroy(Atk_Ef, 0.5f);
                      SfxManger.instance.SfxPlay("Monster_Attacked", clip[3]);
                      Gauge();
-                     // Ã¼·Â °¨¼Ò
+                     // ì²´ë ¥ ê°ì†Œ
 
                 }
 
@@ -65,7 +65,7 @@ public class Player_Attack : MonoBehaviour
     {
         
         Skill_gauge += 10;
-        Debug.Log("°ÔÀÌÁö + " + Skill_gauge);
+        Debug.Log("ê²Œì´ì§€ + " + Skill_gauge);
         
     }
 
@@ -79,31 +79,31 @@ public class Player_Attack : MonoBehaviour
         isKnockback = true;
         yield return new WaitForSeconds(0.41f);
 
-        Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(pos.position, player_boxSize, 0); //¹Ú½º¾È¿¡ ³õ¿©Áø ¸ğµç ¿ÀºêÁ§Æ®µéÀ» collider2d[] ¹è¿­¿¡ ´ãÀ½
+        Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(pos.position, player_boxSize, 0); //ë°•ìŠ¤ì•ˆì— ë†“ì—¬ì§„ ëª¨ë“  ì˜¤ë¸Œì íŠ¸ë“¤ì„ collider2d[] ë°°ì—´ì— ë‹´ìŒ
             foreach (Collider2D collider in collider2Ds)
             {
-                if (collider.tag == "Monster") //Monster ÅÂ±×¿Í Ãæµ¹ÇÏ¸é
+                if (collider.tag == "Monster") //Monster íƒœê·¸ì™€ ì¶©ëŒí•˜ë©´
                 {
                     Skill_gauge += 5;
-                    Debug.Log("°ÔÀÌÁö + 5");
+                    Debug.Log("ê²Œì´ì§€ + 5");
                     foreach (GameObject monster in Enemy_Test)
 
-                    if (Parent.transform.position.x > monster.transform.position.x && monster.transform.rotation.y == 0) //ÇÃ·¹ÀÌ¾î À§Ä¡°¡ ¸ó½ºÅÍÀ§Ä¡º¸´Ù ¿À¸¥ÂÊ
+                    if (Parent.transform.position.x > monster.transform.position.x && monster.transform.rotation.y == 0) //í”Œë ˆì´ì–´ ìœ„ì¹˜ê°€ ëª¬ìŠ¤í„°ìœ„ì¹˜ë³´ë‹¤ ì˜¤ë¥¸ìª½
                     {
                         //isKnockback = true;
-                        collider.transform.Translate(-2.0f, 0.4f, 0); // ¿ŞÂÊ Æ¨°Ü³ª°¨
+                        collider.transform.Translate(-2.0f, 0.4f, 0); // ì™¼ìª½ íŠ•ê²¨ë‚˜ê°
                         is_delay = true;
                     }
-                    else if (Parent.transform.position.x < monster.transform.position.x && monster.transform.rotation.eulerAngles.y <= 180) //ÇÃ·¹ÀÌ¾î À§Ä¡°¡ ¸ó½ºÅÍÀ§Ä¡º¸´Ù ¿ŞÂÊ
+                    else if (Parent.transform.position.x < monster.transform.position.x && monster.transform.rotation.eulerAngles.y <= 180) //í”Œë ˆì´ì–´ ìœ„ì¹˜ê°€ ëª¬ìŠ¤í„°ìœ„ì¹˜ë³´ë‹¤ ì™¼ìª½
                     {
                         //isKnockback = true;
-                        collider.transform.Translate(-2.0f, 0.4f, 0); //¿À¸¥ÂÊÀ¸·Î Æ¨°Ü³ª°¨
+                        collider.transform.Translate(-2.0f, 0.4f, 0); //ì˜¤ë¥¸ìª½ìœ¼ë¡œ íŠ•ê²¨ë‚˜ê°
                         is_delay = true;
                     }
-                    else if (Parent.transform.position.x < monster.transform.position.x && monster.transform.rotation.eulerAngles.y <= -180) //ÇÃ·¹ÀÌ¾î À§Ä¡°¡ ¸ó½ºÅÍÀ§Ä¡º¸´Ù ¿ŞÂÊ
+                    else if (Parent.transform.position.x < monster.transform.position.x && monster.transform.rotation.eulerAngles.y <= -180) //í”Œë ˆì´ì–´ ìœ„ì¹˜ê°€ ëª¬ìŠ¤í„°ìœ„ì¹˜ë³´ë‹¤ ì™¼ìª½
                     {
                         //isKnockback = true;
-                        collider.transform.Translate(2.0f, 0.4f, 0); //¿À¸¥ÂÊÀ¸·Î Æ¨°Ü³ª°¨
+                        collider.transform.Translate(2.0f, 0.4f, 0); //ì˜¤ë¥¸ìª½ìœ¼ë¡œ íŠ•ê²¨ë‚˜ê°
                         is_delay = true;
                     }
                 }
@@ -125,7 +125,7 @@ public class Player_Attack : MonoBehaviour
         atk_Anim();
         Enemy_Test = GameObject.FindGameObjectsWithTag("Monster");
 
-        if (BoolManager.Ending == true) // ¿£µùÀÏ¶§ ½ºÅ©¸³Æ® ºñÈ°¼ºÈ­
+        if (BoolManager.Ending == true) // ì—”ë”©ì¼ë•Œ ìŠ¤í¬ë¦½íŠ¸ ë¹„í™œì„±í™”
         {
             this.GetComponent<Player_Anim>().enabled = false;
         }

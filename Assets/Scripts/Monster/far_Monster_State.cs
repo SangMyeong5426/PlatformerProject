@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +16,7 @@ public class far_Monster_State : MonoBehaviour
 
     public AudioClip clip;
 
-    //gameObject.GetComponent<Monster_chase_Test>().enabled = false; // ½ºÅ©¸³Æ® ºñÈ°¼ºÈ­
+    //gameObject.GetComponent<Monster_chase_Test>().enabled = false; // ìŠ¤í¬ë¦½íŠ¸ ë¹„í™œì„±í™”
     // Start is called before the first frame update
     void Start()
     {
@@ -28,7 +28,7 @@ public class far_Monster_State : MonoBehaviour
 
     void AtkAct()
     {
-        Debug.Log("¿ø°Å¸® °ø°İ");
+        Debug.Log("ì›ê±°ë¦¬ ê³µê²©");
         far.AtkAction.Invoke();
         SfxManger.instance.SfxPlay("Shooting", clip);
     }

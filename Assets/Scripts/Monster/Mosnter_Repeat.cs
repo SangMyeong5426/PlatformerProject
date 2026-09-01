@@ -1,10 +1,10 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Mosnter_Repeat : Monster_Stats
 {
-    //¹İº¹ ¸ó½ºÅÍ´Â ¹Ù·Î ½ºÅÈÀ¸·Î ¿¬°á
+    //ë°˜ë³µ ëª¬ìŠ¤í„°ëŠ” ë°”ë¡œ ìŠ¤íƒ¯ìœ¼ë¡œ ì—°ê²°
 
     Rigidbody2D rigid;
     public int nextMove;
@@ -14,9 +14,9 @@ public class Mosnter_Repeat : Monster_Stats
 
     float delay = 0;
 
-    public Sprite[] sp_head; // 4°³
-    public Sprite[] sp_armor; // 4°³
-    public SpriteRenderer[] Spr; // 0 = Çìµå, 1 = ¾Æ¸Ó,
+    public Sprite[] sp_head; // 4ê°œ
+    public Sprite[] sp_armor; // 4ê°œ
+    public SpriteRenderer[] Spr; // 0 = í—¤ë“œ, 1 = ì•„ë¨¸,
     int random;
     // Start is called before the first frame update
     protected override void Start()
@@ -99,23 +99,23 @@ public class Mosnter_Repeat : Monster_Stats
     {
         if (!MonsterDie)
         {
-            if (collision.gameObject.CompareTag("Player")) // ÇÃ·¹ÀÌ¾î°¡ µ¥¹ÌÁö¸¦ ÀÔ´Â °Í
+            if (collision.gameObject.CompareTag("Player")) // í”Œë ˆì´ì–´ê°€ ë°ë¯¸ì§€ë¥¼ ì…ëŠ” ê²ƒ
             {
-                // Health ½ºÅ©¸³Æ® °¡Á®¿À±â
+                // Health ìŠ¤í¬ë¦½íŠ¸ ê°€ì ¸ì˜¤ê¸°
                 AllUnits.Unit player_Hp = collision.gameObject.GetComponent<AllUnits.Unit>();
                 if (player_Hp != null)
                 {
-                    //Debug.Log("ÇÃ·¹ÀÌ¾î Ã¼·Â = " + (player_Hp.currentHealth - Monster_Damage));
+                    //Debug.Log("í”Œë ˆì´ì–´ ì²´ë ¥ = " + (player_Hp.currentHealth - Monster_Damage));
                     //player_Hp.TakeDamage(Monster_Damage);
-                    // Ã¼·Â °¨¼Ò
+                    // ì²´ë ¥ ê°ì†Œ
                     if (delay <= 0f)
                     {
-                        Debug.Log("ÇÃ·¹ÀÌ¾î Ã¼·Â = " + (player_Hp.currentHealth - Monster_Damage));
+                        Debug.Log("í”Œë ˆì´ì–´ ì²´ë ¥ = " + (player_Hp.currentHealth - Monster_Damage));
                         player_Hp.TakeDamage(Monster_Damage);
                         delay = 1f;
                     }
                 }
-                /*Monster_Stats stat = collision.gameObject.GetComponent<Monster_Stats>(); // º¸½º, ¸ó½ºÅÍ°¡ µ¥¹ÌÁö ÀÔ´Â °Í
+                /*Monster_Stats stat = collision.gameObject.GetComponent<Monster_Stats>(); // ë³´ìŠ¤, ëª¬ìŠ¤í„°ê°€ ë°ë¯¸ì§€ ì…ëŠ” ê²ƒ
                 if (stat != null)
                 {
                     stat.Monster_TakeDamage(damage);

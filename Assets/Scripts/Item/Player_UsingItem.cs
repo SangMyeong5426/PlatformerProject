@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ public class Player_UsingItem : MonoBehaviour
     public float Activecooldown;
     public static bool ShieldOn;
 
-    public AudioClip[] clip; // »ç¿îµå Å¬¸³ 0 = Invisibility, 1 = Speed_Item
+    public AudioClip[] clip; // ì‚¬ìš´ë“œ í´ë¦½ 0 = Invisibility, 1 = Speed_Item
 
     int playerSpeed = 10;
     Rigidbody2D rid2D;
@@ -77,7 +77,7 @@ public class Player_UsingItem : MonoBehaviour
             {
                 UsingActiveSpeed = false;
                 Activecooldown = 0;
-                if(UsingActiveSpeed == false) // ÆÄÆ¼Å¬ÀÌ ²¨Áö¸é ¼Ò¸® ¾È³ª°Ô
+                if(UsingActiveSpeed == false) // íŒŒí‹°í´ì´ êº¼ì§€ë©´ ì†Œë¦¬ ì•ˆë‚˜ê²Œ
                 {
                     
                 }
@@ -92,7 +92,7 @@ public class Player_UsingItem : MonoBehaviour
                 ShieldOn = false;
 
                 Activecooldown = 0;
-                if (UsingActiveShield == false) // ÆÄÆ¼Å¬ÀÌ ²¨Áö¸é ¼Ò¸® ¾È³ª°Ô
+                if (UsingActiveShield == false) // íŒŒí‹°í´ì´ êº¼ì§€ë©´ ì†Œë¦¬ ì•ˆë‚˜ê²Œ
                 {
                     
                 }

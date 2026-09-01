@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,7 +14,7 @@ public class Player_Skill_Shield : MonoBehaviour
 
     GameObject[] Enemys;
 
-    public AudioClip[] clip; // ¿Àµğ¿À º¯¼ö 0 = Monster_Attacked --> ÇÇ°İ»ç¿îµå
+    public AudioClip[] clip; // ì˜¤ë””ì˜¤ ë³€ìˆ˜ 0 = Monster_Attacked --> í”¼ê²©ì‚¬ìš´ë“œ
 
 
     public GameObject Player;
@@ -33,22 +33,22 @@ public class Player_Skill_Shield : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Monster") //Monster ÅÂ±×¿Í Ãæµ¹ÇÏ¸é
+        if (collision.tag == "Monster") //Monster íƒœê·¸ì™€ ì¶©ëŒí•˜ë©´
         {
 
-            // Health ½ºÅ©¸³Æ® °¡Á®¿À±â
+            // Health ìŠ¤í¬ë¦½íŠ¸ ê°€ì ¸ì˜¤ê¸°
             Monster_Stats Monster_Hp = collision.gameObject.GetComponent<Monster_Stats>();
             if (Monster_Hp != null)
             {
-                Debug.Log("¸ó½ºÅÍ ½ºÅ³ ÇÇ°İ" + (Monster_Hp.Monster_currentHp - Pl_Dam.SkillDamage_Shield));
+                Debug.Log("ëª¬ìŠ¤í„° ìŠ¤í‚¬ í”¼ê²©" + (Monster_Hp.Monster_currentHp - Pl_Dam.SkillDamage_Shield));
                 Monster_Hp.Monster_TakeDamage(Pl_Dam.SkillDamage_Shield);
                 SfxManger.instance.SfxPlay("Monster_Attacked", clip[0]);
-                // Ã¼·Â °¨¼Ò
+                // ì²´ë ¥ ê°ì†Œ
             }
         }
     }
 
-    /*private void OnTriggerEnter2D(Collider2D collision) // ³Ë¹é ½ºÅ©¸³Æ®
+    /*private void OnTriggerEnter2D(Collider2D collision) // ë„‰ë°± ìŠ¤í¬ë¦½íŠ¸
     {
         if (collision.gameObject.CompareTag("Monster"))
         {

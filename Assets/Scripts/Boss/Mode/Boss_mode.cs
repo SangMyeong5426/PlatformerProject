@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,7 +27,7 @@ public class Boss_mode : Basic_Boss
     IEnumerator RandomPattern()
     {
         anim.SetBool("Stun", true);
-        yield return new WaitForSeconds(3.0f); //ÆĞÅÏ »çÀÌ¿¡ ³ª¿À´Â °æÁ÷ ½Ã°£
+        yield return new WaitForSeconds(3.0f); //íŒ¨í„´ ì‚¬ì´ì— ë‚˜ì˜¤ëŠ” ê²½ì§ ì‹œê°„
         anim.SetBool("Stun", false);
         yield return new WaitForSeconds(0.5f);
         if (!MonsterDie)
@@ -60,14 +60,14 @@ public class Boss_mode : Basic_Boss
 
         anim.SetTrigger("Skill_2");
         //SfxManger.instance.SfxPlay("Ice_Skill_explosion", clip[1]);
-        yield return new WaitForSeconds(1f); // 1ÃÊ µÚ¿¡
-        GameObject Skill_2 = Instantiate(Attack_Skill_2, Skill_pos_2.position, Skill_pos_2.rotation); //ÀÎ½ºÅÏ½Ã¿¡ÀÌÆ®
+        yield return new WaitForSeconds(1f); // 1ì´ˆ ë’¤ì—
+        GameObject Skill_2 = Instantiate(Attack_Skill_2, Skill_pos_2.position, Skill_pos_2.rotation); //ì¸ìŠ¤í„´ì‹œì—ì´íŠ¸
         Destroy(Skill_2, 2f);
         StartCoroutine(RandomPattern());
 
     }
 
-    IEnumerator TeleAttack() // ÅÚ·¹Æ÷Æ® ÈÄ ºê·¹½º
+    IEnumerator TeleAttack() // í…”ë ˆí¬íŠ¸ í›„ ë¸Œë ˆìŠ¤
     {
         transform.position = Target.transform.position;
         yield return new WaitForSeconds(0.8f);
