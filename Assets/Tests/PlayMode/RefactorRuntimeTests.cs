@@ -299,6 +299,64 @@ public class RefactorRuntimeTests
             + "저장소의 WindBoss.prefab 파일이 더러워진다");
     }
 
+    // ── 같은 결함이 Monster_Spawn 에도 있었다 ────────────────────────────────
+    //
+    // Monster_Spawn 이 일반 몬스터 3종에 완전히 같은 짓을 한다. 게다가 foreach 안에
+    // 있어서 소환 지점마다 프리팹에 다시 쓴다.
+    //
+    // **이지 난이도로는 이 결함을 볼 수 없다.** 1_Stage 의 몬스터 프리팹에 남아 있는
+    // 값이 8 / 4 / 6 인데 그 씬의 이지 체력이 정확히 8 / 4 / 6 이다. 프리팹에 쓰든
+    // 인스턴스에 쓰든 결과가 같아서 아무것도 드러나지 않는다.
+    //
+    // 그 값들이 애초에 **에디터에서 이지로 플레이한 잔재**라서 그렇다. 잔재가 자기를
+    // 만든 결함을 가리고 있다. 그래서 하드(10 / 6 / 8)로 본다.
+
+    [UnityTest]
+    public IEnumerator MonsterSpawn_WritesHpToTheInstanceNotThePrefabAsset()
+    {
+        Begin();
+
+        modeStub = new GameObject("ModeSelectStub");
+        Mode_Select mode = modeStub.AddComponent<Mode_Select>();
+        mode.Easy = false;
+        mode.Hard = false;
+        Object.DontDestroyOnLoad(modeStub);
+
+        yield return LoadStage("1_Stage");
+
+        Monster_Spawn spawner = Object.FindObjectOfType<Monster_Spawn>();
+        Assert.IsNotNull(spawner, "1_Stage 에 Monster_Spawn 이 없다");
+        Assert.GreaterOrEqual(spawner.Monster_prefabs.Length, 3, "Monster_prefabs 가 3개 미만이다");
+
+        GameObject[] prefabs = spawner.Monster_prefabs;
+        int[] stageHp = { spawner.Normal_Hp[1], spawner.far_Hp[1], spawner.repeat_Hp[1] };
+        string[] label = { "근거리", "원거리", "패트롤" };
+
+        int[] pristine = new int[3];
+        for (int i = 0; i < 3; i++)
+        {
+            pristine[i] = prefabs[i].GetComponent<Monster_Stats>().Monster_hpMax;
+            Assert.AreNotEqual(pristine[i], stageHp[i],
+                label[i] + " 프리팹 기본값과 하드 체력이 같아 이 테스트가 무의미하다");
+        }
+
+        // 이번에는 하드 난이도로 실제 소환을 돌린다.
+        mode.Hard = true;
+        yield return LoadScene("1_Stage");
+
+        // 1. 동작이 그대로인가 - 인스턴스가 하드 체력을 받는다
+        AssertClonesHaveHp<Normal_Monster>(stageHp[0], label[0]);
+        AssertClonesHaveHp<Far_Monster>(stageHp[1], label[1]);
+        AssertClonesHaveHp<Mosnter_Repeat>(stageHp[2], label[2]);
+
+        // 2. 결함이 사라졌는가 - 프리팹 에셋은 그대로다
+        for (int i = 0; i < 3; i++)
+        {
+            Assert.AreEqual(pristine[i], prefabs[i].GetComponent<Monster_Stats>().Monster_hpMax,
+                label[i] + " 프리팹 에셋의 Monster_hpMax 가 " + stageHp[i] + " 로 바뀌었다");
+        }
+    }
+
     // ── 도우미 ────────────────────────────────────────────────────────────────
 
     const BindingFlags Any = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -367,6 +425,19 @@ public class RefactorRuntimeTests
         assign(boss);
     }
 
+    // 소환된 몬스터만 본다. 씬에 미리 놓인 몬스터가 있으면 그쪽은 스포너가 체력을
+    // 건드리지 않으므로 함께 보면 안 된다. Instantiate 가 붙이는 "(Clone)" 으로 가른다.
+    static void AssertClonesHaveHp<T>(int expected, string what) where T : Monster_Stats
+    {
+        T[] clones = Object.FindObjectsOfType<T>()
+                           .Where(m => m.name.EndsWith("(Clone)")).ToArray();
+        Assert.Greater(clones.Length, 0, what + " 몬스터가 하나도 소환되지 않았다");
+        foreach (T m in clones)
+        {
+            Assert.AreEqual(expected, m.Monster_hpMax, what + " 인스턴스가 난이도 체력을 받지 못했다");
+        }
+    }
+
     static GameObject modeStub;
 
     [TearDown]
@@ -391,7 +462,8 @@ public class RefactorRuntimeTests
 
     // 실제 플레이어 프리팹(Player_Sword 등)을 쓰지 않는다. 플레이모드 테스트에서는
     // 에셋을 경로로 불러올 수 없다. 대신 씬 코드가 실제로 요구하는 것만 갖춘다 -
-    // Player 태그, AllUnits.Unit, CurMapName, 그리고 Player_Hit 태그를 단 자식.
+    // Player 태그, AllUnits.Unit, CurMapName, Inventory, 그리고 실제 플레이어
+    // 프리팹이 다는 태그를 단 자식들.
     // Target 태그는 보스 프리팹 안에 있어서 대역이 필요 없다.
     // 테스트마다 새로 만들지 않고 실행 내내 하나를 쓴다.
     //
@@ -415,9 +487,32 @@ public class RefactorRuntimeTests
         unit.Player_Attacked_Effect = new GameObject("HitEffectStub");
         unit.Player_Attacked_Effect.transform.SetParent(playerStub.transform);
 
-        GameObject hit = new GameObject("PlayerHitStub");
-        hit.tag = "Player_Hit";
-        hit.transform.SetParent(playerStub.transform);
+        // 실제 플레이어 프리팹(Player_Sword / Player_Spear / Player_shield)이 다는 태그
+        // 전부다. 프리팹 YAML 의 m_TagString 을 뽑아서 맞췄다.
+        //
+        // 처음에는 Player_Hit 만 넣었다가 1_Stage 를 띄우고 물렸다. Far_Monster.Start 가
+        // FindGameObjectWithTag("Far_Attack_Pos").transform 을 널 검사 없이 부르는데,
+        // 대역에 그 태그가 없어서 playerTransform 이 null 로 남고 Update 가 매 프레임
+        // 예외를 던졌다. 그 로그가 **다음 테스트에 귀속되어** WindBoss 테스트 2개를 죽였다.
+        //
+        // 하나씩 겪지 않으려고 스크립트가 FindWithTag 로 찾는 태그를 전부 뽑아
+        // 플레이어 프리팹이 다는 것과 대조했다. 빠진 것이 셋이었다.
+        foreach (string childTag in new[] { "Player_Hit", "Far_Attack_Pos",
+                                            "Monster_Skill_Pos", "Player_Weapon" })
+        {
+            GameObject child = new GameObject(childTag + "Stub");
+            child.tag = childTag;
+            child.transform.SetParent(playerStub.transform);
+        }
+
+        // 인벤토리는 실제 게임에서도 **플레이어 프리팹(sel_HeroKnight*)에 붙어** 씬을
+        // 넘어간다. 그래서 여기 둔다.
+        //
+        // 없으면 1_Stage 의 InventoryUI 가 Update 마다 NRE 를 던진다. inven 은
+        // Inventory.instance 가 있을 때만 채워지는데, 없을 때 가는 else 가 하필
+        // `Inventory.instance = inven`(= null) 이라 끝까지 null 로 남는다.
+        // 그 예외 로그가 **다음 테스트에 귀속되어** WindBoss 테스트 2개를 죽였다.
+        playerStub.AddComponent<Inventory>();
 
         Object.DontDestroyOnLoad(playerStub);
     }
