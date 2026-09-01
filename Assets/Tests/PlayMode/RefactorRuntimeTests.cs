@@ -43,6 +43,15 @@ public class RefactorRuntimeTests
         // 없어서 배선이 덜 된 오브젝트가 예외를 뱉는다. 우리가 보는 것은 로그가 아니라
         // 상태값이다. 어떤 예외가 나오는지는 work log 에 적었다.
         LogAssert.ignoreFailingMessages = true;
+
+        // 난이도 대역은 실행 내내 하나를 공유한다. 앞 테스트가 켜 둔 난이도가 남으면
+        // 다음 테스트가 씬을 띄울 때 보스나 몬스터가 예상 밖으로 소환된다.
+        if (modeStub != null)
+        {
+            Mode_Select mode = modeStub.GetComponent<Mode_Select>();
+            mode.Easy = false;
+            mode.Hard = false;
+        }
     }
 
     // ── followups 대응: 영어 로케일 봉인 대화 (C단계에서 고친 멈춤 결함) ──────────
@@ -252,19 +261,12 @@ public class RefactorRuntimeTests
     {
         Begin();
 
-        // 난이도 대역. Boss_Spawn.Awake 가 FindObjectOfType<Mode_Select>() 를 널 검사
-        // 없이 쓴다. 실제 게임에서는 UI_Select 의 DontDestroy 오브젝트가 따라온다.
-        //
-        // 둘 다 false 로 두고 한 번 띄우는 이유는, 그래야 Boss_Spawn 이 아무것도 쓰지
-        // 않아서 **프리팹의 원래 값을 먼저 읽어 둘 수 있기** 때문이다. 값을 코드에
-        // 박아 두면 나중에 프리팹을 손봤을 때 테스트가 엉뚱한 이유로 실패한다.
-        modeStub = new GameObject("ModeSelectStub");
-        Mode_Select mode = modeStub.AddComponent<Mode_Select>();
-        mode.Easy = false;
-        mode.Hard = false;
-        Object.DontDestroyOnLoad(modeStub);
-
+        // 난이도를 둘 다 끈 채로 한 번 띄운다. 그래야 Boss_Spawn 이 아무것도 쓰지 않아서
+        // **프리팹의 원래 값을 먼저 읽어 둘 수 있다.** 값을 코드에 박아 두면 나중에
+        // 프리팹을 손봤을 때 테스트가 엉뚱한 이유로 실패한다.
+        // (대역은 LoadStage 가 세우고 Begin 이 난이도를 꺼 둔다)
         yield return LoadStage("4_StageBoss");
+        Mode_Select mode = ModeStub();
 
         Boss_Spawn spawner = Object.FindObjectOfType<Boss_Spawn>();
         Assert.IsNotNull(spawner, "4_StageBoss 에 Boss_Spawn 이 없다");
@@ -316,13 +318,8 @@ public class RefactorRuntimeTests
     {
         Begin();
 
-        modeStub = new GameObject("ModeSelectStub");
-        Mode_Select mode = modeStub.AddComponent<Mode_Select>();
-        mode.Easy = false;
-        mode.Hard = false;
-        Object.DontDestroyOnLoad(modeStub);
-
         yield return LoadStage("1_Stage");
+        Mode_Select mode = ModeStub();
 
         Monster_Spawn spawner = Object.FindObjectOfType<Monster_Spawn>();
         Assert.IsNotNull(spawner, "1_Stage 에 Monster_Spawn 이 없다");
@@ -357,6 +354,144 @@ public class RefactorRuntimeTests
         }
     }
 
+    // ── followups 3 대응: 보스 클리어 후 포탈이 열리는지 ──────
+    //
+    // B단계에서 GroundBossPortal / IceBossPortal / FireBossPortal / WindBossPortal
+    // 네 클래스를 BossClearPortal 하나 + StageId 값으로 합쳬다. 합치면서 생길 수 있는
+    // 사고가 "어느 스테이지를 깨든 다 열린다"라서, **자기 스테이지에만 반응하는지**를 본다.
+    //
+    // 씬을 띄우지 않는다. BoolManager 의 클리어 플래그는 static 이고 포탈은 그것만
+    // 보므로, 씬을 끌어오면 검증과 상관없는 것이 잔릿 딸려 올 뿐이다.
+
+    [UnityTest]
+    public IEnumerator BossClearPortal_OpensOnlyForItsOwnStage()
+    {
+        Begin();
+
+        BoolManager.ResetBossCleared();
+
+        GameObject door = new GameObject("PortalStub");
+        door.SetActive(false);
+
+        GameObject holder = new GameObject("BossClearPortalStub");
+        BossClearPortal portal = holder.AddComponent<BossClearPortal>();
+        portal.stage = StageId.Second;   // 얼음 스테이지 담당
+        portal.Portal = door;
+
+        yield return null;
+        Assert.IsFalse(door.activeSelf, "아무것도 안 깨었는데 포탈이 열렸다");
+
+        BoolManager.SetBossCleared(StageId.First);
+        yield return null;
+        Assert.IsFalse(door.activeSelf, "다른 스테이지를 깨었는데 열렸다 - 합치면서 stage 값을 안 보게 된 것이다");
+
+        BoolManager.SetBossCleared(StageId.Second);
+        yield return null;
+        Assert.IsTrue(door.activeSelf, "담당 스테이지를 깨었는데 안 열렸다");
+
+        // A단계에서 매 프레임 SetActive 를 반복하던 것을 멈추게 했다. 그것도 함께 본다.
+        Assert.IsFalse(portal.enabled, "포탈이 열린 뒤에는 Update 를 멈춰야 한다");
+
+        BoolManager.ResetBossCleared();   // static 이라 다음 테스트로 샜다
+        Object.DestroyImmediate(holder);
+        Object.DestroyImmediate(door);
+    }
+
+    // ── followups 2 대응: 씬 전환 시 Destroy / DestroyPL ──────────────
+    //
+    // A단계에서 DestroyPL 을 Destroy 의 상속으로 바꿨다. 둘의 차이는 **파괴할 씬 목록**
+    // 하나뿐이다. DestroyPL 은 EndingScene 에서 살아남아야 한다 - 엔딩 장면에도
+    // 플레이어가 보여야 하기 때문이다.
+    //
+    // **진짜 씬을 띄우지 않는다.** 이 두 클래스가 보는 것은 활성 씬의 **이름**뿐이라
+    // 이름만 같은 빈 씬으로 충분하고, 그러면 그 씬의 다른 스크립트가 매 프레임 예외를
+    // 던져 다음 테스트를 죽이는 일도 없다. 실제로 그 사고를 두 번 겪었다.
+
+    [UnityTest]
+    public IEnumerator SceneSwitch_DestroyAndDestroyPLFollowTheirOwnSceneLists()
+    {
+        Begin();
+
+        // 4_StageBoss 로 치운다. UI_Main 을 띄우면 나중에 같은 이름의 합성 씬을
+        // 만들 때 이름이 겹친다. 대역까지 세워 주므로 매 프레임 예외도 안 난다.
+        yield return LoadStage("4_StageBoss");
+        yield return SwitchTo("TestStage");    // 목록에 없는 이름 = 게임 진행 중
+
+        GameObject common = new GameObject("CommonStub");
+        common.AddComponent<Destroy>();
+        GameObject carried = new GameObject("PlayerCarryStub");
+        carried.AddComponent<DestroyPL>();
+
+        yield return null;   // Start 가 돌아 DontDestroyOnLoad 로 옮겨진다
+        yield return null;
+
+        Assert.IsTrue(common != null, "게임 진행 중에는 공용 오브젝트가 남아야 한다");
+        Assert.IsTrue(carried != null, "게임 진행 중에는 플레이어가 남아야 한다");
+
+        // 여기서 갈린다.
+        yield return SwitchTo("EndingScene");
+        Assert.IsTrue(common == null, "Destroy 는 EndingScene 에서 사라져야 한다");
+        Assert.IsTrue(carried != null, "DestroyPL 은 EndingScene 에서 남아야 한다 - 엔딩에도 플레이어가 보인다");
+
+        // 메인 메뉴로 나가면 둘 다 사라진다.
+        yield return SwitchTo("UI_Main");
+        Assert.IsTrue(carried == null, "DestroyPL 은 UI_Main 에서 사라져야 한다");
+
+        // UI_Main 으로 치운다. 보스 씬을 남기면 Boss_HpBar 가 다시 살아나 매 프레임
+        // 예외를 던진다. 합성 UI_Main 은 위에서 이미 다 썼으므로 이름이 겹치지 않는다.
+        yield return LoadScene("UI_Main");
+    }
+
+    // ── followups 4 대응: 대화 트리거가 발동하는지 ────────────────
+    //
+    // B단계에서 NPCTri / NPCTri2 / NPCTri3 / NPCTri4 네 클래스를 TalkTrigger 하나 +
+    // TalkChannel 값으로 합쳬다. 합치면서 생길 수 있는 사고가 **채널과 진행도 카운터가
+    // 어긋나는 것**이다. 어긋나면 이미 끝낸 대화가 다시 열리거나 열려야 할 대화가 안 열린다.
+    //
+    // 두 가지를 나눠서 본다.
+    //   1. 실제 접촉으로 발동하는가        - 물리 충돌로 확인
+    //   2. 채널마다 자기 진행도를 읽는가   - 게이트 로직만 직접 호출해 확인
+    // 2를 물리로 하면 8번을 부딪혀야 하고 그만큼 불안정해진다. 어긋날 수 있는 자리는
+    // 게이트 로직이지 Unity 의 충돌 전달이 아니다.
+
+    [UnityTest]
+    public IEnumerator TalkTrigger_FiresOnContactAndReadsItsOwnChannel()
+    {
+        Begin();
+
+        TalkManager.DataNum = 0;
+        TalkManager.DataNum2 = 0;
+        EndTalkManager.DataNum = 0;
+        EndTalkManager.DataNum2 = 0;
+
+        // 1. 실제로 부딪히면 열리는가.
+        bool contact = false;
+        yield return FireByContact(TalkChannel.MainFirst, 3, r => contact = r);
+        Assert.IsTrue(contact, "플레이어가 닿았는데 대화창이 열리지 않았다");
+
+        // 2. 채널마다 자기 진행도를 읽는가.
+        //    MainFirst 만 한도에 닿게 해 두면 그 채널만 막혀야 한다.
+        TalkManager.DataNum = 3;
+        Assert.IsFalse(Fires(TalkChannel.MainFirst, 3), "MainFirst 는 진행도가 한도에 닿아 막혀야 한다");
+        Assert.IsTrue(Fires(TalkChannel.MainSecond, 3), "MainSecond 가 TalkManager.DataNum 을 읽고 있다");
+        Assert.IsTrue(Fires(TalkChannel.EndFirst, 3), "EndFirst 가 TalkManager.DataNum 을 읽고 있다");
+        Assert.IsTrue(Fires(TalkChannel.EndSecond, 3), "EndSecond 가 TalkManager.DataNum 을 읽고 있다");
+
+        //    이번에는 EndSecond 만 막는다. 반대 방향으로도 섞이지 않는지 확인한다.
+        TalkManager.DataNum = 0;
+        EndTalkManager.DataNum2 = 3;
+        Assert.IsTrue(Fires(TalkChannel.MainFirst, 3), "MainFirst 가 EndTalkManager.DataNum2 를 읽고 있다");
+        Assert.IsFalse(Fires(TalkChannel.EndSecond, 3), "EndSecond 는 진행도가 한도에 닿아 막혀야 한다");
+
+        // 3. Player 가 아닌 것에는 반응하지 않는가.
+        Assert.IsFalse(Fires(TalkChannel.MainFirst, 3, false), "Player 가 아닌 것에 반응했다");
+
+        TalkManager.DataNum = 0;
+        EndTalkManager.DataNum2 = 0;
+        Time.timeScale = 1f;
+        yield return null;
+    }
+
     // ── 도우미 ────────────────────────────────────────────────────────────────
 
     const BindingFlags Any = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -381,8 +516,52 @@ public class RefactorRuntimeTests
         // 씬을 띄우기 **전에** 세운다. UI_Main 이 로드되는 동안에도 Player 를 찾는
         // 코드가 돌기 때문이다. 뒤에 세우면 그 사이에 예외가 난다.
         EnsurePlayerStub();
+        EnsureModeStub();
         yield return LoadScene("UI_Main");
         yield return LoadScene(name);
+        QuietBossHpBars();
+    }
+
+    // 보스 씬의 체력바를 끈다.
+    //
+    // Boss_HpBar.Start 가 FindWithTag("Monster") 로 보스를 찾아 stat 에 담는데, 널 검사가
+    // 없다. 보스가 없으면 stat 이 null 로 남고 **Update 가 매 프레임 예외를 던진다.**
+    // 실제 게임에서는 Boss_Spawn.Awake 가 Start 보다 먼저 보스를 만들어 주므로 안 걸린다.
+    //
+    // 테스트는 난이도 대역을 꺼 두어 보스가 생기지 않는 상태로 보스 씬을 띄우는 일이
+    // 많다. 그 예외 로그가 **다음 테스트에 귀속되어** 그쪽을 죽인다. 실제로 셋이 죽었다.
+    // 우리가 보는 것은 체력바가 아니므로 꺼서 소음을 없앤다.
+    static void QuietBossHpBars()
+    {
+        foreach (Boss_HpBar bar in Object.FindObjectsOfType<Boss_HpBar>())
+        {
+            bar.enabled = false;
+        }
+    }
+
+    // 난이도 대역. 난이도를 둘 다 끈 채로 세워 둔다 (followups 14).
+    //
+    // Boss_Spawn.Awake 와 Monster_Spawn.Start 가 FindObjectOfType<Mode_Select>() 를
+    // 널 검사 없이 쓴다. 실제 게임에서는 UI_Select 의 DontDestroy 오브젝트가 따라오는데
+    // 테스트는 그 씬을 거치지 않아서, 없으면 매번 NullReferenceException 이 콘솔에
+    // 쌓였다. 무해한 예외가 늘 떠 있으면 진짜 문제가 생겨도 묻힌다.
+    //
+    // 둘 다 꺼 두면 스포너가 아무것도 소환하지 않으므로, 보스를 직접 세우는 테스트가
+    // 보스를 두 마리 보는 일도 없다. 난이도가 필요한 테스트만 플래그를 켠다.
+    static void EnsureModeStub()
+    {
+        if (modeStub != null) return;
+        modeStub = new GameObject("ModeSelectStub");
+        Mode_Select mode = modeStub.AddComponent<Mode_Select>();
+        mode.Easy = false;
+        mode.Hard = false;
+        Object.DontDestroyOnLoad(modeStub);
+    }
+
+    static Mode_Select ModeStub()
+    {
+        EnsureModeStub();
+        return modeStub.GetComponent<Mode_Select>();
     }
 
     // 보스를 세운다.
@@ -413,13 +592,8 @@ public class RefactorRuntimeTests
         Wind_Boss boss = go.GetComponent<Wind_Boss>();
         Assert.IsNotNull(boss, "Boss_prefabs[3] 에 Wind_Boss 가 없다");
 
-        // HP 바는 자기 Start 에서 보스를 못 찾고 이미 죽었다(FindWithTag("Monster")).
-        // 실제 게임에서는 Boss_Spawn.Awake 가 Start 보다 먼저 보스를 만들어 준다.
-        // 우리 관심사가 아니므로 꺼서 소음을 없앤다.
-        foreach (Boss_HpBar bar in Object.FindObjectsOfType<Boss_HpBar>())
-        {
-            bar.enabled = false;
-        }
+        // LoadStage 가 이미 껐지만, 이 도우미를 LoadStage 없이 부르는 경우를 대비한다.
+        QuietBossHpBars();
 
         yield return null;   // 보스의 Awake / Start 가 도는 프레임
         assign(boss);
@@ -438,25 +612,92 @@ public class RefactorRuntimeTests
         }
     }
 
-    static GameObject modeStub;
-
-    [TearDown]
-    public void TearDown()
+    // 이름만 가진 빈 씬으로 활성 씬을 바꿈다. activeSceneChanged 가 실제로 발생한다.
+    static IEnumerator SwitchTo(string name)
     {
-        // **난이도 대역만** 매 테스트 끝에 지운다. 남겨 두면 뒤 테스트가 4_StageBoss 를
-        // 띄울 때 Boss_Spawn 이 보스를 하나 더 만들고, 탄환 60발 테스트가 120발을 센다.
-        //
-        // 플레이어 대역은 여기서 지우면 안 된다. 앞 씬의 Camera_test 가 매 FixedUpdate
-        // 마다 없어진 Transform 을 참조해 예외를 쏟고, 그 로그가 다음 테스트에 귀속된다.
-        // 실제로 그것 때문에 4개가 죽었다. 아래 EnsurePlayerStub 주석 참조.
-        //
-        // 난이도 대역은 Boss_Spawn 이 Awake 에서 한 번 읽고 끝이라 이 문제가 없다.
-        if (modeStub != null)
-        {
-            Object.DestroyImmediate(modeStub);
-            modeStub = null;
-        }
+        SceneManager.SetActiveScene(SceneManager.CreateScene(name));
+        yield return null;   // activeSceneChanged -> Apply 가 파괴를 예약한다
+        yield return null;   // 파괴가 반영되는 프레임
     }
+
+    // 대화 트리거 한 벌을 세운다. 다른 씬 콜라이더에 걸리지 않도록 멀리 떨어뜨린다.
+    static void BuildTalkTrigger(TalkChannel channel, int maxDataNum, bool playerTag,
+                                 out TalkTrigger trigger, out GameObject panel,
+                                 out GameObject other, Vector3 origin)
+    {
+        panel = new GameObject("TalkPanelStub");
+        panel.SetActive(false);
+
+        GameObject go = new GameObject("TalkTriggerStub");
+        go.transform.position = origin;
+        BoxCollider2D box = go.AddComponent<BoxCollider2D>();
+        box.isTrigger = true;
+        box.size = new Vector2(2f, 2f);
+
+        trigger = go.AddComponent<TalkTrigger>();
+        trigger.TalkPannel = panel;
+        trigger.channel = channel;
+        trigger.maxDataNum = maxDataNum;
+        trigger.requireBossSeal = false;
+
+        other = new GameObject("TalkOtherStub");
+        // 태그를 Player 로 두면 트리거가 받아들여야 한다. 아니면 무시해야 한다.
+        other.tag = playerTag ? "Player" : "Untagged";
+        other.AddComponent<BoxCollider2D>();
+    }
+
+    // 게이트 로직만 본다. 물리 없이 OnTriggerEnter2D 를 직접 부른다.
+    static bool Fires(TalkChannel channel, int maxDataNum, bool playerTag = true)
+    {
+        Vector3 origin = new Vector3(7000f, 7000f, 0f);
+        TalkTrigger trigger;
+        GameObject panel, other;
+        BuildTalkTrigger(channel, maxDataNum, playerTag, out trigger, out panel, out other, origin);
+
+        var m = typeof(TalkTrigger).GetMethod("OnTriggerEnter2D", Any);
+        m.Invoke(trigger, new object[] { other.GetComponent<Collider2D>() });
+        bool fired = panel.activeSelf;
+
+        // 트리거는 열면서 timeScale 을 0 으로 만들고 끝난다. 되돌리지 않으면
+        // 다음 확인의 물리와 WaitForSeconds 가 멈춘다.
+        Time.timeScale = 1f;
+        Object.DestroyImmediate(trigger.gameObject);
+        Object.DestroyImmediate(panel);
+        Object.DestroyImmediate(other);
+        return fired;
+    }
+
+    // 실제 물리 충돌로 발동하는지 본다.
+    static IEnumerator FireByContact(TalkChannel channel, int maxDataNum, System.Action<bool> result)
+    {
+        Vector3 origin = new Vector3(8000f, 8000f, 0f);
+        TalkTrigger trigger;
+        GameObject panel, mover;
+        BuildTalkTrigger(channel, maxDataNum, true, out trigger, out panel, out mover, origin);
+
+        mover.transform.position = origin + new Vector3(3f, 0f, 0f);
+        Rigidbody2D body = mover.AddComponent<Rigidbody2D>();
+        body.gravityScale = 0f;
+        body.velocity = new Vector2(-6f, 0f);
+
+        yield return null;
+
+        bool fired = false;
+        // timeScale 이 0 이 되면 물리가 멈추므로 unscaled 로 센다.
+        for (float t = 0f; t < 2f && !fired; t += Time.unscaledDeltaTime)
+        {
+            fired = panel.activeSelf;
+            yield return null;
+        }
+
+        Time.timeScale = 1f;
+        Object.DestroyImmediate(trigger.gameObject);
+        Object.DestroyImmediate(panel);
+        Object.DestroyImmediate(mover);
+        result(fired);
+    }
+
+    static GameObject modeStub;
 
     static GameObject playerStub;
 
@@ -526,6 +767,11 @@ public class RefactorRuntimeTests
         {
             Object.Destroy(playerStub);
             playerStub = null;
+        }
+        if (modeStub != null)
+        {
+            Object.Destroy(modeStub);
+            modeStub = null;
         }
     }
 
