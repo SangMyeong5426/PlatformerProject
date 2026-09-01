@@ -373,7 +373,7 @@ MonoBehaviour:
   Child: {fileID: 0}
   Zero_damage: 0
   Monster_Damage: 2
-  Monster_hpMax: 80
+  Monster_hpMax: 10
   Monster_currentHp: 0
   MonsterDie: 0
   Boss_Mode: 0
