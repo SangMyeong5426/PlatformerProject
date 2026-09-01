@@ -1,16 +1,16 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Monster_Spawn : MonoBehaviour
 {
-    // ÇÁ¸®ÆÕ ½ºÅ×ÀÌÁö ¹èÄ¡ ÈÄ ÇÁ¸®ÆÕ ¾ğÆÑ ÇØÁà¾ßÇÔ. (½Ç¼ö·Î ÇÁ¸®ÆÕ ¼öÄ¡ º¯°æÇÏ¸é ´Ù º¯°æµÇ¼­)
+    // í”„ë¦¬íŒ¹ ìŠ¤í…Œì´ì§€ ë°°ì¹˜ í›„ í”„ë¦¬íŒ¹ ì–¸íŒ© í•´ì¤˜ì•¼í•¨. (ì‹¤ìˆ˜ë¡œ í”„ë¦¬íŒ¹ ìˆ˜ì¹˜ ë³€ê²½í•˜ë©´ ë‹¤ ë³€ê²½ë˜ì„œ)
     GameObject[] Spawn_Position1;
     GameObject[] Spawn_Position2;
     GameObject[] Spawn_Position3;
-    public GameObject[] Monster_prefabs; // ¸ó½ºÅÍ ÇÁ¸®ÆÕ 0 = ±Ù°Å¸®, 1 = ¿ø°Å¸®, 2 = ÆĞÆ®·Ñ
+    public GameObject[] Monster_prefabs; // ëª¬ìŠ¤í„° í”„ë¦¬íŒ¹ 0 = ê·¼ê±°ë¦¬, 1 = ì›ê±°ë¦¬, 2 = íŒ¨íŠ¸ë¡¤
 
-    // ³­ÀÌµµ º° ¸ó½ºÅÍ Ã¼·Â 0 = ÀÌÁö, 1 = ÇÏµå
+    // ë‚œì´ë„ ë³„ ëª¬ìŠ¤í„° ì²´ë ¥ 0 = ì´ì§€, 1 = í•˜ë“œ
     public int[] Normal_Hp;
     public int[] far_Hp;
     public int[] repeat_Hp;
@@ -22,7 +22,7 @@ public class Monster_Spawn : MonoBehaviour
     {
         Mode = FindObjectOfType<Mode_Select>();
 
-        // ¼ÒÈ¯ ÇÒ À§Ä¡¿¡ ¿ÀºêÁ§Æ® ¸¸µé°í ¼ÒÈ¯ ½ÃÅ³ ¸ó½ºÅÍ ÅÂ±× ÁöÁ¤
+        // ì†Œí™˜ í•  ìœ„ì¹˜ì— ì˜¤ë¸Œì íŠ¸ ë§Œë“¤ê³  ì†Œí™˜ ì‹œí‚¬ ëª¬ìŠ¤í„° íƒœê·¸ ì§€ì •
         Spawn_Position1 = GameObject.FindGameObjectsWithTag("NormalMonster_Spawn");
         Spawn_Position2 = GameObject.FindGameObjectsWithTag("farMonster_Spawn");
         Spawn_Position3 = GameObject.FindGameObjectsWithTag("repeatMonster_Spawn");
@@ -32,11 +32,11 @@ public class Monster_Spawn : MonoBehaviour
     void Start()
     {
 
-        if (Mode.Easy == true) // ÀÌÁö³­ÀÌµµ
+        if (Mode.Easy == true) // ì´ì§€ë‚œì´ë„
         {
             EasyMode();
         }
-        if (Mode.Hard == true) // ÇÏµå³­ÀÌµµ
+        if (Mode.Hard == true) // í•˜ë“œë‚œì´ë„
         {
             HardMode();
         }
