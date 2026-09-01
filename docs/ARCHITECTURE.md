@@ -8,7 +8,8 @@
 
 ## 범위
 
-사용자가 작성한 스크립트 **134개**가 `Assets/Scripts/` 아래에 있다.
+사용자가 작성한 스크립트 **134개**가 `Assets/Scripts/` 아래에 있다. 여기에 더해
+플레이모드 테스트가 `Assets/Tests/` 에 있다(아래 참조).
 
 `Assets/` 의 나머지 폴더(`1. Monster`, `2. Player`, `3. Level_design`, `4. UI`, 에셋 스토어
 패키지들)에는 **에셋만 있다** — 스프라이트, 애니메이션, 프리팹, 씬, 사운드. 코드는 없다.
@@ -30,9 +31,17 @@ Assets/Scripts/
 ├── Sound/       7    BGM·SFX
 ├── Level/       6    카메라·배경·플랫폼
 └── Portal/      3    스테이지 이동
+
+Assets/Tests/
+└── PlayMode/    1    리팩토링 결과를 실행해서 확인하는 테스트
 ```
 
 `asmdef` 는 두지 않는다. 지금 의존 관계가 얽혀 있어 어셈블리를 나누면 순환 참조가 난다.
+
+**테스트도 `asmdef` 없이 둔다.** `asmdef` 어셈블리는 `Assembly-CSharp` 을 참조할 수 없어서
+테스트가 게임 코드를 못 본다. 대신 `playModeTestRunnerEnabled` 를 켜서 게임 코드와 같은
+어셈블리에 두고, 파일 전체를 `#if UNITY_INCLUDE_TESTS` 로 감싸 빌드에서 뺀다.
+근거는 [ADR-0005](adr/0005-batchmode-playmode-tests.md).
 
 ## `Boss/` — 보스 5종
 

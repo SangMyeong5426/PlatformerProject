@@ -3,18 +3,30 @@
 검증에 쓰는 도구를 둔다. **주장을 재현할 수 있게 하는 것이 목적이다** — 커밋 메시지에
 "동작이 같다"고 적었으면 그것을 다시 확인할 수단이 저장소에 있어야 한다.
 
+세 도구의 범위가 다르다. **앞의 둘은 소스를 읽을 뿐 실행하지 않는다.**
+
+| 도구 | 무엇을 보는가 | Unity |
+| --- | --- | --- |
+| `compile-check` | 컴파일이 되는가 | 닫혀 있어야 유리 |
+| `boss-pattern-diff` | 패턴 연산 시퀀스가 같은가 | 필요 없음 |
+| `playmode-test` | **실행하면 실제로 그렇게 도는가** | **닫아야 한다** |
+
 ## `compile-check`
 
-Unity 를 열지 않고 `Assets/Scripts/` 아래 스크립트를 컴파일해 본다.
+Unity 를 열지 않고 `Assets/Scripts/` 와 `Assets/Tests/` 아래 스크립트를 컴파일해 본다.
 
 ```bash
 python scripts/compile-check              # PASS / FAIL 과 error 수
 python scripts/compile-check --warnings   # 경고도 함께
 ```
 
-Unity 에 딸려 오는 Mono 컴파일러(`mcs`)를 쓰고, 참조는 `UnityEngine` 모듈과
-`Library/ScriptAssemblies/` 의 패키지 어셈블리에서 가져온다. 결과 어셈블리는 버린다 —
-통과 여부만 본다.
+Unity 에 딸려 오는 Mono 컴파일러(`mcs`)를 쓰고, 참조는 BCL(`System`, `System.Core`),
+`UnityEngine` 모듈, `Library/ScriptAssemblies/` 의 패키지 어셈블리, nunit 에서 가져온다.
+결과 어셈블리는 버린다 — 통과 여부만 본다.
+
+`-noconfig` 를 쓰므로 **기본 참조가 하나도 안 붙는다.** LINQ(`System.Core`)처럼 Unity 라면
+당연히 있는 것도 직접 넣어야 한다. 이건 실제로 한 번 물렸다 — 게임 코드에 LINQ 사용처가
+없어서 테스트를 붙이기 전까지 드러나지 않았다.
 
 **왜 필요한가.** 이 저장소에는 CI 가 없다. 컴파일 확인을 하려면 Unity 를 열고 재임포트를
 기다린 뒤 콘솔을 봐야 하는데, **파일을 옮기는 작업에서는 에디터를 닫아 둬야 해서 그마저
@@ -24,10 +36,40 @@ Unity 에 딸려 오는 Mono 컴파일러(`mcs`)를 쓰고, 참조는 `UnityEngi
 
 - Unity 는 Roslyn 을, 이 스크립트는 Mono 의 `mcs` 를 쓴다. 진단과 지원 C# 버전이 다를 수 있다
 - `UNITY_EDITOR` 같은 정의 기호를 넣지 않는다. `#if` 로 갈리는 코드는 다르게 컴파일된다
-- `Editor/` 스크립트와 에셋 스토어 패키지는 대상이 아니다
+- 에셋 스토어 패키지는 대상이 아니다. `Editor/` 폴더는 2패스로 따로 검사한다
 
 **실패는 확실한 신호이고, 통과는 "적어도 이 범위에서는 문제가 없다"는 뜻이다.** Unity 에서의
 최종 확인을 대신하지 않는다.
+
+### 왜 2패스인가
+
+런타임 코드와 에디터 스크립트를 나눠서 두 번 컴파일한다. Unity 가 `Assembly-CSharp` 과
+`Assembly-CSharp-Editor` 로 나누는 것과 같은 경계다.
+
+**런타임 패스에서는 `UnityEditor*` 참조를 전부 뺀다.** 그래서 런타임 코드가 실수로 에디터
+API 를 쓰면 여기서 걸린다. Unity 에서는 빌드할 때야 드러나는 종류의 실수다.
+
+`UnityEditor.dll` 하나만 빼는 것으로는 부족하다 — `EditorApplication` 이
+`UnityEditor.CoreModule.dll` 에 들어 있어서 경계가 서지 않는다. 실측으로 확인했다.
+
+### 한 번 조용히 통과시킨 적이 있다
+
+오류 판정을 문자열 `"): error "` 로 하고 있었다. mcs 진단이 항상 `파일(행,열): error CSxxxx`
+형태라고 가정한 것인데, **파일과 행 번호가 없는 오류가 있다.**
+
+`UnityEditor.dll` 을 중복으로 참조했을 때 이렇게 났다.
+
+```
+error CS1704: An assembly with the same name `UnityEditor' has already been imported
+Compilation failed: 1 error(s), 0 warnings
+```
+
+컴파일이 통째로 죽었는데 도구는 `PASS 소스 136개 error 0개` 를 냈다. 어느 줄도
+`"): error "` 에 걸리지 않았기 때문이다. **유일한 단서가 경고 수가 59개에서 0개로 떨어진
+것**이었고, 그걸 이상하게 여기지 않았으면 계속 통과하는 줄 알았을 것이다.
+
+지금은 정규식 `error CS\d+` 로 넓히고 **mcs 종료 코드까지** 본다. 종료 코드가 0이 아닌데
+오류 줄을 못 찾으면 원문을 그대로 실어 실패로 낸다.
 
 ## `boss-pattern-diff`
 
@@ -120,3 +162,53 @@ python scripts/boss-pattern-diff --emit --rev 2f023e52 > scripts/baseline/boss-p
 
 **둘 중 어느 쪽이 맞는지 확정하지 못한 채로 남긴다.** 21개 전부가 `2f023e52` 와 일치하므로
 검증 결론은 달라지지 않지만, 수치가 다르다는 사실을 지우지 않는다.
+
+## `playmode-test`
+
+Unity 창 없이 플레이모드 테스트를 돌린다. **게임 루프가 실제로 도는 진짜 실행이다** —
+코루틴, `WaitForSeconds`, 씬 로드가 동작한다.
+
+```bash
+python scripts/playmode-test               # 전부
+python scripts/playmode-test --filter Wind # 이름에 Wind 가 든 것만
+python scripts/playmode-test --log         # Unity 로그 전체
+```
+
+테스트는 [`Assets/Tests/PlayMode/`](../Assets/Tests/PlayMode/) 에 있다. 근거와 대안 검토는
+[ADR-0005](../docs/adr/0005-batchmode-playmode-tests.md).
+
+### 왜 필요한가
+
+앞의 두 도구가 **둘 다 통과했는데 실행하면 죽는** 결함이 실제로 있었다. C단계에서 발견한
+영어 로케일 봉인 대화다 — 컴파일도 되고 패턴 시퀀스도 안 건드렸지만 `Awake` 에서
+`ArgumentException` 이 나고 `timeScale` 이 0 인 채로 잠겼다.
+
+**소스를 더 잘 읽는 도구로는 안 잡힌다. 실행해야 잡힌다.**
+
+### 실제 씬을 로드한다
+
+테스트용 씬을 따로 만들지 않았다. 만들면 그 씬의 배선이 실제 씬과 같다는 것을 또 검증해야
+하고, **리팩토링에서 깨지기 쉬운 것이 바로 씬 배선**이다. `4_StageBoss` 를 그대로 띄워야
+그 씬이 실제로 돈다는 것이 확인된다.
+
+씬 14개가 전부 빌드 설정에 있어 `SceneManager.LoadScene` 으로 로드된다.
+
+### 손으로는 확인할 수 없는 것을 확인한다
+
+`Earth_Bullet` 이 자기 데미지를 읽는지는 **플레이해도 알 수 없다.** `EarthBullet_Damage` 와
+`IceWave_Damage` 가 프리팹 5개에서 전부 `1` 이라 어느 쪽을 읽든 화면이 같다.
+
+테스트는 두 값을 7 과 3 으로 다르게 준다. 그러면 어느 쪽을 읽는지 드러난다.
+
+### 전제 — Unity 를 닫아야 한다
+
+배치모드가 프로젝트를 독점한다. 스크립트가 먼저 확인하고 알려준다.
+
+### 한계
+
+- **키 입력을 만들어낼 수 없다.** `activeInputHandler: 0` (구 Input Manager)이라
+  `Input.GetKeyDown` 을 코드로 흉내낼 방법이 없다. 대화 진행 테스트는 키가 호출하는
+  코루틴을 리플렉션으로 직접 부른다. **"스페이스를 누르면 `Advance` 가 불린다"는 한 줄은
+  미검증으로 남는다.** 그 줄은 리팩토링에서 손대지 않은 원본 코드다
+- 화면에 무엇이 그려지는지는 보지 않는다. 상태값만 본다
+- 씬이 바뀌면 테스트도 손봐야 한다. 씬 배선을 검증 범위에 넣는 대가다
