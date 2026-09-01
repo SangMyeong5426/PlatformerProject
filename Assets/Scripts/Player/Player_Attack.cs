@@ -50,7 +50,7 @@ public class Player_Attack : MonoBehaviour
                      Monster_Hp.Monster_TakeDamage(Player_Dam.damage);
                      GameObject Atk_Ef = Instantiate(Attacked_Effect, pos.position,pos.rotation); // 이펙트 나올 인스턴셰이트
                      Destroy(Atk_Ef, 0.5f);
-                     SfxManger.instance.SfxPlay("Monster_Attacked", clip[3]);
+                     SfxManager.instance.SfxPlay("Monster_Attacked", clip[3]);
                      Gauge();
                      // 체력 감소
 
@@ -149,15 +149,15 @@ public class Player_Attack : MonoBehaviour
     {
         if (GameObject.Find("Player_Sword(Clone)"))
         {
-            SfxManger.instance.SfxPlay("Sword_Attack", clip[0]);
+            SfxManager.instance.SfxPlay("Sword_Attack", clip[0]);
         }
         else if (GameObject.Find("Player_Spear(Clone)"))
         {
-            SfxManger.instance.SfxPlay("Spear_Attack", clip[1]);
+            SfxManager.instance.SfxPlay("Spear_Attack", clip[1]);
         }
         else if (GameObject.Find("Player_shield(Clone)"))
         {
-            SfxManger.instance.SfxPlay("Shield_Attack", clip[2]);
+            SfxManager.instance.SfxPlay("Shield_Attack", clip[2]);
         }
     }
 }

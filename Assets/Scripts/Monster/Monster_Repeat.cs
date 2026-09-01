@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Mosnter_Repeat : Monster_Stats
+public class Monster_Repeat : Monster_Stats
 {
     //반복 몬스터는 바로 스탯으로 연결
 

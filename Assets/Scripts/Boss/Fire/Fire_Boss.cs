@@ -15,7 +15,7 @@ public class Fire_Boss : Basic_Boss
 
     protected override void PlayTeleportSfx()
     {
-        SfxManger.instance.SfxPlay("Fire_Attack", clip[0]);
+        SfxManager.instance.SfxPlay("Fire_Attack", clip[0]);
     }
 
     protected override System.Func<IEnumerator>[] BuildPatterns()
@@ -42,7 +42,7 @@ public class Fire_Boss : Basic_Boss
         LookPlayer();
 
         anim.SetBool("Breath", true);
-        SfxManger.instance.SfxPlay("Fire_Skill_breath", clip[1]);
+        SfxManager.instance.SfxPlay("Fire_Skill_breath", clip[1]);
         yield return new WaitForSeconds(0.3f);
         Instantiate(BreathPrepab, BreathPos.position, BreathPos.rotation);
         yield return new WaitForSeconds(2.0f);
@@ -52,7 +52,7 @@ public class Fire_Boss : Basic_Boss
     IEnumerator FireMeteor()
     {
         anim.SetBool("Meteor", true);
-        SfxManger.instance.SfxPlay("Fire_Skill_Meteor", clip[2]);
+        SfxManager.instance.SfxPlay("Fire_Skill_Meteor", clip[2]);
         Instantiate(MeteorPrepab, MeteorPos.position, MeteorPos.rotation);
         yield return new WaitForSeconds(2.0f);
         anim.SetBool("Meteor", false);

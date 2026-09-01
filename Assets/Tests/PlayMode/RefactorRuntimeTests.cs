@@ -195,7 +195,7 @@ public class RefactorRuntimeTests
         var playerBody = playerGo.AddComponent<Rigidbody2D>();
         playerBody.bodyType = RigidbodyType2D.Static;
         var unit = playerGo.AddComponent<AllUnits.Unit>();
-        unit.clip_attacked = new AudioClip[0];              // 비면 SfxManger 를 안 부른다
+        unit.clip_attacked = new AudioClip[0];              // 비면 SfxManager 를 안 부른다
         unit.Player_Attacked_Effect = new GameObject("HitFx");
         unit.me = playerGo;
 
@@ -347,7 +347,7 @@ public class RefactorRuntimeTests
         // 1. 동작이 그대로인가 - 인스턴스가 하드 체력을 받는다
         AssertClonesHaveHp<Normal_Monster>(stageHp[0], label[0]);
         AssertClonesHaveHp<Far_Monster>(stageHp[1], label[1]);
-        AssertClonesHaveHp<Mosnter_Repeat>(stageHp[2], label[2]);
+        AssertClonesHaveHp<Monster_Repeat>(stageHp[2], label[2]);
 
         // 2. 결함이 사라졌는가 - 프리팹 에셋은 그대로다
         for (int i = 0; i < 3; i++)
@@ -369,7 +369,7 @@ public class RefactorRuntimeTests
     //   SpawnPoint.Awake      FindWithTag("Player") 가 null -> NRE
     //   Camera_test.Start     같은 이유로 playerTransform 미할당
     //   Basic_Boss.Start      Player_Hit / Player / Target 을 못 찾는다
-    //   Wind_Boss.SpawnBullet SfxManger.instance 가 null -> 탄환이 하나도 안 나간다
+    //   Wind_Boss.SpawnBullet SfxManager.instance 가 null -> 탄환이 하나도 안 나간다
     //   TalkManagerBase.Update PL 이 null -> 매 프레임 예외로 Update 가 중단된다
     //
     // 가 전부 터진다. 처음엔 스테이지만 로드했다가 이걸 다 맞았다.
@@ -482,7 +482,7 @@ public class RefactorRuntimeTests
         playerStub.AddComponent<CurMapName>();
 
         AllUnits.Unit unit = playerStub.AddComponent<AllUnits.Unit>();
-        unit.clip_attacked = new AudioClip[0];   // 비면 SfxManger 를 안 부른다
+        unit.clip_attacked = new AudioClip[0];   // 비면 SfxManager 를 안 부른다
         unit.me = playerStub;
         unit.Player_Attacked_Effect = new GameObject("HitEffectStub");
         unit.Player_Attacked_Effect.transform.SetParent(playerStub.transform);

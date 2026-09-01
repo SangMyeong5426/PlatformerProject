@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Stage_2_monster : Basic_Boss
+public class Ice_Boss : Basic_Boss
 {
     //public BoxCollider2D HitBox;
     public GameObject Attack_Skill_2, Ice_Arrow, Pre_Ice_Spike;
@@ -54,7 +54,7 @@ public class Stage_2_monster : Basic_Boss
     {
         base.LookPlayer();
         anim.SetBool("Attack", true); // 애니메이션 실행
-        SfxManger.instance.SfxPlay("Ice_Skill_1", clip[0]);
+        SfxManager.instance.SfxPlay("Ice_Skill_1", clip[0]);
 
         /*yield return new WaitForSeconds(1f); // 1초뒤에
         GameObject Skill_1_pos = Instantiate(Pre_Ice_Spike, Ice_Arrow_pos.position, Quaternion.Euler(0, 0, 0)); // 플레이어 위치에 준비 스킬뜨고
@@ -74,7 +74,7 @@ public class Stage_2_monster : Basic_Boss
         base.LookPlayer();
         
         anim.SetBool("Attack_2", true);
-        SfxManger.instance.SfxPlay("Ice_Skill_explosion", clip[1]);
+        SfxManager.instance.SfxPlay("Ice_Skill_explosion", clip[1]);
         yield return new WaitForSeconds(1f); // 1초 뒤에
         GameObject Skill_2 = Instantiate(Attack_Skill_2, Skill_pos_2.position, Skill_pos_2.rotation); //인스턴시에이트
         Destroy(Skill_2, 2f);

@@ -51,14 +51,15 @@ Assets/Tests/
 | 보스 | 본체 클래스 | 폴더 |
 | --- | --- | --- |
 | 불 | `Fire_Boss` | `Boss/Fire/` |
-| 얼음 | **`Stage_2_monster`** | `Boss/Ice/` |
-| 대지 | **`One_Stage_Boss`** | `Boss/Earth/` |
+| 얼음 | `Ice_Boss` | `Boss/Ice/` |
+| 대지 | `Earth_Boss` | `Boss/Earth/` |
 | 바람 | `Wind_Boss` | `Boss/Wind/` |
 | 모드 | `Boss_mode` | `Boss/Mode/` |
 
-**얼음과 대지는 클래스 이름이 어느 보스인지 말해 주지 않는다.** 2023년 작업 당시 스테이지
-번호로 이름을 붙인 잔재다. 이름은 아직 바꾸지 않았다 — 이름 변경은 직렬화에 영향이 가는지
-따로 확인해야 하고, 배치 이동과 섞으면 문제가 생겼을 때 어느 쪽 때문인지 가릴 수 없다.
+얼음과 대지는 원래 `Stage_2_monster` / `One_Stage_Boss` 였다. 2023년 작업 당시 스테이지
+번호로 이름을 붙인 것이라 어느 보스인지 이름이 말해 주지 않았다. **2026-09-02 에 바꿨다.**
+배치 이동과 섞지 않으려고 미뤄 뒀던 것이고, 회귀를 잡을 플레이모드 테스트가 생긴 뒤에
+했다.
 
 각 보스 폴더에는 본체와 함께 **그 보스의 투사체·이펙트 스크립트**가 들어 있다.
 `Boss/Mode/` 에는 모드 보스 본체와 `FinBoss_*` 프리팹에 붙은 투사체 5개가 있다.
@@ -126,8 +127,9 @@ Monster_Bullet  Monster_chase  Monster_chase_far  Monster_chase_Test2
   `GenerateData()`/`GenerateDataENG()` 가 채운다. 프로젝트는 이미 Unity Localization 을
   쓰고 있어 문자열 테이블로 옮길 수 있다. 매니저 3종의 공통 골격은 정리했지만 대사의
   자리는 그대로다 — [`followups`](followups.md) 8번
-- **클래스 이름이 내용을 말하지 않는 것들이 있다.** `Stage_2_monster`(얼음 보스),
-  `One_Stage_Boss`(대지 보스), `Mosnter_Repeat`(오타), `Postion`(오타), `SfxManger`(오타)
+- **클래스 이름이 내용을 말하지 않는 것이 남아 있다.** `Postion`(오타), `Camera_test`
+  (실제로는 플레이어 추적 카메라). `Stage_2_monster` · `One_Stage_Boss` · `Mosnter_Repeat`
+  · `SfxManger` 는 2026-09-02 에 정리했다
 - **의존 관계가 얽혀 있다.** `Basic_Boss` 가 `BoolManager` 를, `Item/Gemstone` 이
   `BoolManager` 를 읽는 식이라 `asmdef` 로 나누면 순환 참조가 난다
 

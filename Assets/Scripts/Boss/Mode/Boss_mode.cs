@@ -59,7 +59,7 @@ public class Boss_mode : Basic_Boss
         base.LookPlayer();
 
         anim.SetTrigger("Skill_2");
-        //SfxManger.instance.SfxPlay("Ice_Skill_explosion", clip[1]);
+        //SfxManager.instance.SfxPlay("Ice_Skill_explosion", clip[1]);
         yield return new WaitForSeconds(1f); // 1초 뒤에
         GameObject Skill_2 = Instantiate(Attack_Skill_2, Skill_pos_2.position, Skill_pos_2.rotation); //인스턴시에이트
         Destroy(Skill_2, 2f);
@@ -73,7 +73,7 @@ public class Boss_mode : Basic_Boss
         yield return new WaitForSeconds(0.8f);
         base.LookPlayer();
         anim.SetTrigger("TeleAttack");
-        //SfxManger.instance.SfxPlay("Fire_Skill_breath", clip[1]);
+        //SfxManager.instance.SfxPlay("Fire_Skill_breath", clip[1]);
         yield return new WaitForSeconds(0.3f);
         GameObject Breath = Instantiate(BreathPrepab, BreathPos.position, BreathPos.rotation);
 
@@ -82,7 +82,7 @@ public class Boss_mode : Basic_Boss
     }
     IEnumerator SpawnTornado()
     {
-        anim.SetTrigger("Skill_1");        //SfxManger.instance.SfxPlay("Wind_Skill_Tornado", clip[0]);
+        anim.SetTrigger("Skill_1");        //SfxManager.instance.SfxPlay("Wind_Skill_Tornado", clip[0]);
         yield return new WaitForSeconds(1f);
         GameObject Tor1 = Instantiate(TornadoPrefab, Tornado1.position, Tornado1.rotation);
         GameObject Tor2 = Instantiate(TornadoPrefab, Tornado2.position, Tornado1.rotation);
@@ -99,7 +99,7 @@ public class Boss_mode : Basic_Boss
     {
         base.LookPlayer();
         anim.SetTrigger("Skill_1");
-        //SfxManger.instance.SfxPlay("Wind_Skill_smallTor", clip[1]);
+        //SfxManager.instance.SfxPlay("Wind_Skill_smallTor", clip[1]);
         yield return new WaitForSeconds(0.8f);
         for (int i = 0; i < 360; i += 25)
         {
@@ -140,7 +140,7 @@ public class Boss_mode : Basic_Boss
     IEnumerator FireMeteor()
     {
         anim.SetBool("Skill_1", true);
-        //SfxManger.instance.SfxPlay("Fire_Skill_Meteor", clip[2]);
+        //SfxManager.instance.SfxPlay("Fire_Skill_Meteor", clip[2]);
         GameObject Breath = Instantiate(MeteorPrepab, MeteorPos.position, MeteorPos.rotation);
         yield return new WaitForSeconds(2.0f);
         StartCoroutine(RandomPattern());

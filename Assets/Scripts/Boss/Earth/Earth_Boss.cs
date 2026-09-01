@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class One_Stage_Boss : Basic_Boss
+public class Earth_Boss : Basic_Boss
 {
     //public BoxCollider2D HitBox;
     public GameObject EarthGrowSkill, Pre_EarthGrow; // 2번째 스킬
@@ -23,7 +23,7 @@ public class One_Stage_Boss : Basic_Boss
 
     protected override void PlayDashSfx()
     {
-        SfxManger.instance.SfxPlay("Rock_Rush", clip[0]);
+        SfxManager.instance.SfxPlay("Rock_Rush", clip[0]);
     }
 
     protected override System.Func<IEnumerator>[] BuildPatterns()
@@ -51,7 +51,7 @@ public class One_Stage_Boss : Basic_Boss
     {
         base.LookPlayer();
         anim.SetBool("Attack_2", true); // 애니메이션 실행
-        SfxManger.instance.SfxPlay("Rock_Skill_1", clip[1]);
+        SfxManager.instance.SfxPlay("Rock_Skill_1", clip[1]);
         yield return new WaitForSeconds(1f); // 1초뒤에
         GameObject Skill_1_pos = Instantiate(EarthGrow_1, Earth_skill_pos_1.position, Quaternion.Euler(0, 0, 0)); // 첫번째 위치
         GameObject Skill_1_1_pos = Instantiate(EarthGrow_1, Earth_skill_pos_1_1.position, Quaternion.Euler(0, 0, 0)); // 첫번째 위치

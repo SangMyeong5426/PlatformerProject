@@ -5,11 +5,11 @@ using UnityEngine.Audio;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class SfxManger : MonoBehaviour
+public class SfxManager : MonoBehaviour
 {
     public AudioClip[] bgmlist;
     public AudioSource bgm; //배경음 오디오소스
-    public static SfxManger instance; //싱글턴
+    public static SfxManager instance; //싱글턴
     public AudioMixer mixer; //오디오 믹서 변수
 
     public Slider Sfx_Slider; // 유아이 효과음 슬라이더

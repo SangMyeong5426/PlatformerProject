@@ -92,8 +92,13 @@ python scripts/boss-pattern-diff --emit           # 시퀀스를 그대로 출�
 
 | 보스 | 패턴 |
 | --- | --- |
-| `Fire_Boss` / `Wind_Boss` / `One_Stage_Boss`(대지) / `Stage_2_monster`(얼음) | 각 4 |
+| `Fire_Boss` / `Wind_Boss` / `Earth_Boss` / `Ice_Boss` | 각 4 |
 | `Boss_mode` | 5 |
+
+`Earth_Boss` 와 `Ice_Boss` 는 2026-09-02 에 `One_Stage_Boss` / `Stage_2_monster` 에서 이름이
+바뀌었다. **기준표는 고치지 않았다** — 기준표는 리팩토링 직전(`2f023e52`) 소스의 기록이고
+그때는 저 이름이 맞았다. 대신 도구의 `CLASS_RENAMED` 가 대조할 때 옛 이름으로 되돌린다.
+덕분에 같은 도구가 이름 변경을 가로질러 시퀀스가 그대로임을 확인해 준다.
 
 `Boss_mode` 는 2단계 리팩토링 범위 밖이라 손대지 않았다. 그래서 대조에 넣으면 **"손대지
 않았다"는 것 자체가 검증된다.**

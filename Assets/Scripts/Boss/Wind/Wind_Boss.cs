@@ -45,7 +45,7 @@ public class Wind_Boss : Basic_Boss
     IEnumerator SpawnTornado()
     {
         anim.SetBool("Tornado", true);
-        SfxManger.instance.SfxPlay("Wind_Skill_Tornado", clip[0]);
+        SfxManager.instance.SfxPlay("Wind_Skill_Tornado", clip[0]);
         yield return new WaitForSeconds(1f);
         Instantiate(TornadoPrefab, Tornado1.position, Tornado1.rotation);
         Instantiate(TornadoPrefab, Tornado2.position, Tornado1.rotation);
@@ -67,7 +67,7 @@ public class Wind_Boss : Basic_Boss
     {
         LookPlayer();
         anim.SetBool("Bullet", true);
-        SfxManger.instance.SfxPlay("Wind_Skill_smallTor", clip[1]);
+        SfxManager.instance.SfxPlay("Wind_Skill_smallTor", clip[1]);
         yield return new WaitForSeconds(1f);
 
         for (int b = 0; b < BurstOffsets.Length; b++)

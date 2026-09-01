@@ -40,7 +40,14 @@ BASELINE = os.path.join(ROOT, "scripts", "baseline", "boss-patterns.txt")
 
 # 리팩토링 대상 4종에 Boss_mode 를 더한다. Boss_mode 는 2단계 범위 밖이라
 # 손대지 않았고, 그래서 대조에 넣으면 "손대지 않았다"는 것 자체가 검증된다.
-BOSSES = ["Fire_Boss", "Wind_Boss", "One_Stage_Boss", "Stage_2_monster", "Boss_mode"]
+BOSSES = ["Fire_Boss", "Wind_Boss", "Earth_Boss", "Ice_Boss", "Boss_mode"]
+
+# 클래스 이름만 바뀐 것 (2026-09-02). 새 이름 -> 기준표에 적힌 옛 이름.
+#
+# **기준표를 고치지 않는다.** 기준표는 리팩토링 직전(2f023e52) 소스의 기록이고 그때는
+# 저 이름이 맞았다. 지금 이름에 맞춰 기준표를 고치면 "기준"이라는 성격을 잃는다.
+# 대신 대조할 때 여기서 옛 이름으로 되돌린다. 시퀀스 자체는 이름과 무관하다.
+CLASS_RENAMED = {"Earth_Boss": "One_Stage_Boss", "Ice_Boss": "Stage_2_monster"}
 BASE = "Basic_Boss"
 
 # Basic_Boss 의 훅 기본값. 보스가 재정의하지 않으면 이 값을 쓴다.
@@ -79,7 +86,15 @@ def run(args):
 def source(name, rev):
     """리비전(또는 작업 트리)에서 클래스 파일을 읽는다.
 
-    파일이 옮겨 다녔으므로 경로가 아니라 파일명으로 찾는다."""
+    이름이 바뀐 클래스는 옛 리비전에 옛 이름으로 있으므로 양쪽을 다 시도한다."""
+    text = source_file(name, rev)
+    if text is None and name in CLASS_RENAMED:
+        text = source_file(CLASS_RENAMED[name], rev)
+    return text
+
+
+def source_file(name, rev):
+    """파일이 옮겨 다녔으므로 경로가 아니라 파일명으로 찾는다."""
     target = name + ".cs"
     if rev is None:
         for dirpath, _dirs, files in os.walk(os.path.join(ROOT, "Assets")):
@@ -396,10 +411,12 @@ def emit(rev):
     out = []
     for name in BOSSES:
         boss = Boss(name, rev)
+        # 기준표에 적힌 이름으로 출력한다. 위 CLASS_RENAMED 주석 참조.
+        shown = CLASS_RENAMED.get(name, name)
         if not boss.text:
-            out.append(name + ": 소스 없음")
+            out.append(shown + ": 소스 없음")
             continue
-        out.append(name)
+        out.append(shown)
         out.append("  scheduler wait " + fmt(boss.interval()))
         for idx, fn in enumerate(boss.patterns()):
             body, _ = boss.body_of(fn)

@@ -133,7 +133,7 @@ public class Player_Move : AllUnits.Unit
 
         if (isGround && Input.GetKeyDown(KeyCode.Space)) //����
         {
-            SfxManger.instance.SfxPlay("Player_Jump", clip[0]);
+            SfxManager.instance.SfxPlay("Player_Jump", clip[0]);
             Player_rigid.velocity = new Vector2(Player_rigid.velocity.x, jumpPower);
             GameObject jump_ef = Instantiate(jump_effect, effect_Pos.position, effect_Pos.rotation);
             Destroy(jump_ef, 0.5f);
@@ -141,7 +141,7 @@ public class Player_Move : AllUnits.Unit
             
         }else if (doubleJumpState && Input.GetKeyDown(KeyCode.Space)) //��������
         {
-            SfxManger.instance.SfxPlay("Player_Jump", clip[0]);
+            SfxManager.instance.SfxPlay("Player_Jump", clip[0]);
             Player_rigid.velocity = new Vector2(Player_rigid.velocity.x, jumpPower);
             doubleJumpState = false;
             GameObject jump_ef = Instantiate(jump_effect, effect_Pos.position, effect_Pos.rotation);
@@ -157,7 +157,7 @@ public class Player_Move : AllUnits.Unit
             if (Input.GetKeyDown(KeyCode.Space) && Input.GetButton("Vertical")) //�ϴ� ����
             {
                 isGround = false;
-                SfxManger.instance.SfxPlay("Player_Jump", clip[0]);
+                SfxManager.instance.SfxPlay("Player_Jump", clip[0]);
                 //effecter.rotationalOffset = 180;
                 //Debug.Log("�Ʒ�����");
                 GameObject[] Ground_Layer = GameObject.FindGameObjectsWithTag("Downplatform");//.GetComponent<Down_Platform>().ChangeLayer(); // �Ʒ�Ű + ����Ű ������
@@ -279,7 +279,7 @@ public class Player_Move : AllUnits.Unit
     
     IEnumerator dash_dash()
     {
-        SfxManger.instance.SfxPlay("Player_Dash", clip[1]);
+        SfxManager.instance.SfxPlay("Player_Dash", clip[1]);
         Player_rigid.velocity = transform.right * Dashdirection * dash_Speed * movX * -1;
         GameObject dash_ef = Instantiate(Dash_effect, dash_transform.position, transform.rotation);
         Destroy(dash_ef, 0.5f);

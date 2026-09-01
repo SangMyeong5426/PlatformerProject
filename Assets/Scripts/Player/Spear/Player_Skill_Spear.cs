@@ -79,7 +79,7 @@ public class Player_Skill_Spear : MonoBehaviour
             {
                 Debug.Log("몬스터 스킬 피격" + (Monster_Hp.Monster_currentHp - Pl_Dam.SkillDamage_Spear));
                 Monster_Hp.Monster_TakeDamage(Pl_Dam.SkillDamage_Spear);
-                SfxManger.instance.SfxPlay("Monster_Attacked", clip[0]);
+                SfxManager.instance.SfxPlay("Monster_Attacked", clip[0]);
                 // 체력 감소
             }
         }

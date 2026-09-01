@@ -30,7 +30,7 @@ public class far_Monster_State : MonoBehaviour
     {
         Debug.Log("원거리 공격");
         far.AtkAction.Invoke();
-        SfxManger.instance.SfxPlay("Shooting", clip);
+        SfxManager.instance.SfxPlay("Shooting", clip);
     }
     /*void Update()
     {

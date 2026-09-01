@@ -58,10 +58,10 @@ namespace AllUnits
             GameObject Atk_Ef = Instantiate(Player_Attacked_Effect, me.transform.position, me.transform.rotation);
             Destroy(Atk_Ef, 0.5f);
 
-            //SfxManger.instance.SfxPlay("Monster_Attacked", clip_attacked[0]);
+            //SfxManager.instance.SfxPlay("Monster_Attacked", clip_attacked[0]);
             if (clip_attacked.Length > 0)
             {
-                SfxManger.instance.SfxPlay("Monster_Attacked", clip_attacked[0]);
+                SfxManager.instance.SfxPlay("Monster_Attacked", clip_attacked[0]);
             }
             
             if (Player_UsingItem.UsingActiveShield == false)

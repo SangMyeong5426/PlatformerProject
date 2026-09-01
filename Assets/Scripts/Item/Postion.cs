@@ -26,7 +26,7 @@ public class Postion : MonoBehaviour
         if (collision.tag == "Player")
         {
             
-            SfxManger.instance.SfxPlay("Heal_Item", clip);
+            SfxManager.instance.SfxPlay("Heal_Item", clip);
             player_Move.currentHealth += 5;
 
             Destroy(gameObject);

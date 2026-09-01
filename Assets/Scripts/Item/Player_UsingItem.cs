@@ -50,7 +50,7 @@ public class Player_UsingItem : MonoBehaviour
                     if (inven.items[0].itemName == "Speed")
                     {
                         particleObject.Play();
-                        SfxManger.instance.SfxPlay("Speed_Item", clip[1]);
+                        SfxManager.instance.SfxPlay("Speed_Item", clip[1]);
                         Inventory.instance.RemoveInven();
                         Inventory.instance.onChangeItem();
                         UsingActiveSpeed = true;
@@ -61,7 +61,7 @@ public class Player_UsingItem : MonoBehaviour
                     if (inven.items[0].itemName == "Shield")
                     {
                         particleObject2.Play();
-                        SfxManger.instance.SfxPlay("Invisibility", clip[0]);
+                        SfxManager.instance.SfxPlay("Invisibility", clip[0]);
                         Inventory.instance.RemoveInven();
                         Inventory.instance.onChangeItem();
                         UsingActiveShield = true;
