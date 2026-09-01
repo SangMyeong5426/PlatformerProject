@@ -1,17 +1,17 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Boss_Spawn : MonoBehaviour
 {
-    // ÇÁ¸®ÆÕ ½ºÅ×ÀÌÁö ¹èÄ¡ ÈÄ ÇÁ¸®ÆÕ ¾ğÆÑ ÇØÁà¾ßÇÔ. (½Ç¼ö·Î ÇÁ¸®ÆÕ ¼öÄ¡ º¯°æÇÏ¸é ´Ù º¯°æµÇ¼­)
+    // í”„ë¦¬íŒ¹ ìŠ¤í…Œì´ì§€ ë°°ì¹˜ í›„ í”„ë¦¬íŒ¹ ì–¸íŒ© í•´ì¤˜ì•¼í•¨. (ì‹¤ìˆ˜ë¡œ í”„ë¦¬íŒ¹ ìˆ˜ì¹˜ ë³€ê²½í•˜ë©´ ë‹¤ ë³€ê²½ë˜ì„œ)
     GameObject Spawn_Position1;
 
 
-    public GameObject[] Boss_prefabs; // ¸ó½ºÅÍ ÇÁ¸®ÆÕ 0 = ±Ù°Å¸®, 1 = ¿ø°Å¸®, 2 = ÆĞÆ®·Ñ
+    public GameObject[] Boss_prefabs; // ëª¬ìŠ¤í„° í”„ë¦¬íŒ¹ 0 = ê·¼ê±°ë¦¬, 1 = ì›ê±°ë¦¬, 2 = íŒ¨íŠ¸ë¡¤
 
-    // ³­ÀÌµµ º° ¸ó½ºÅÍ Ã¼·Â 0 = ÀÌÁö, 1 = ÇÏµå
+    // ë‚œì´ë„ ë³„ ëª¬ìŠ¤í„° ì²´ë ¥ 0 = ì´ì§€, 1 = í•˜ë“œ
     public int[] Stage_1;
     public int[] Stage_2;
     public int[] Stage_3;
@@ -23,14 +23,14 @@ public class Boss_Spawn : MonoBehaviour
     {
         Mode = FindObjectOfType<Mode_Select>();
 
-        // ¼ÒÈ¯ ÇÒ À§Ä¡¿¡ ¿ÀºêÁ§Æ® ¸¸µé°í ¼ÒÈ¯ ½ÃÅ³ ¸ó½ºÅÍ ÅÂ±× ÁöÁ¤
+        // ì†Œí™˜ í•  ìœ„ì¹˜ì— ì˜¤ë¸Œì íŠ¸ ë§Œë“¤ê³  ì†Œí™˜ ì‹œí‚¬ ëª¬ìŠ¤í„° íƒœê·¸ ì§€ì •
         Spawn_Position1 = GameObject.FindGameObjectWithTag("Boss_Spawn");
 
-        if (Mode.Easy == true) // ÀÌÁö³­ÀÌµµ
+        if (Mode.Easy == true) // ì´ì§€ë‚œì´ë„
         {
             EasyMode();
         }
-        if (Mode.Hard == true) // ÇÏµå³­ÀÌµµ
+        if (Mode.Hard == true) // í•˜ë“œë‚œì´ë„
         {
             HardMode();
         }
