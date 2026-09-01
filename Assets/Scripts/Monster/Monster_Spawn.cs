@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Monster_Spawn : MonoBehaviour
 {
@@ -14,6 +12,9 @@ public class Monster_Spawn : MonoBehaviour
     public int[] Normal_Hp;
     public int[] far_Hp;
     public int[] repeat_Hp;
+
+    const int EasyIndex = 0;
+    const int HardIndex = 1;
 
     Mode_Select Mode;
 
@@ -34,59 +35,34 @@ public class Monster_Spawn : MonoBehaviour
 
         if (Mode.Easy == true) // 이지난이도
         {
-            EasyMode();
+            SpawnAll(EasyIndex);
         }
         if (Mode.Hard == true) // 하드난이도
         {
-            HardMode();
+            SpawnAll(HardIndex);
         }
     }
 
-    void EasyMode()
+    void SpawnAll(int difficulty)
     {
-        foreach (GameObject spawn in Spawn_Position1)
-        {
-            Monster_prefabs[0].GetComponent<Normal_Monster>().Monster_hpMax = Normal_Hp[0];
-            GameObject pre = Instantiate(Monster_prefabs[0], spawn.transform.position, spawn.transform.rotation);
-        }
-
-        foreach (GameObject spawn in Spawn_Position2)
-        {
-            Monster_prefabs[1].GetComponent<Far_Monster>().Monster_hpMax = far_Hp[0];
-            GameObject pre = Instantiate(Monster_prefabs[1], spawn.transform.position, spawn.transform.rotation);
-        }
-
-        foreach (GameObject spawn in Spawn_Position3)
-        {
-            Monster_prefabs[2].GetComponent<Mosnter_Repeat>().Monster_hpMax = repeat_Hp[0];
-            GameObject pre = Instantiate(Monster_prefabs[2], spawn.transform.position, spawn.transform.rotation);
-        }
+        SpawnAt(Spawn_Position1, 0, Normal_Hp, difficulty);
+        SpawnAt(Spawn_Position2, 1, far_Hp, difficulty);
+        SpawnAt(Spawn_Position3, 2, repeat_Hp, difficulty);
     }
 
-    void HardMode() 
+    void SpawnAt(GameObject[] points, int prefabIndex, int[] hpByDifficulty, int difficulty)
     {
-        foreach (GameObject spawn in Spawn_Position1)
+        foreach (GameObject spawn in points)
         {
-            Monster_prefabs[0].GetComponent<Normal_Monster>().Monster_hpMax = Normal_Hp[1];
-            GameObject pre = Instantiate(Monster_prefabs[0], spawn.transform.position, spawn.transform.rotation);
-        }
+            // 체력을 루프 **안에서** 읽는 것은 원래 동작 그대로다. 소환 지점이 하나도
+            // 없으면 표를 읽지 않으므로, 표가 비어 있어도 예외가 나지 않는다.
+            // 루프 밖으로 빼면 그 경우에 없던 예외가 생긴다.
+            int hp = hpByDifficulty[difficulty];
 
-        foreach (GameObject spawn in Spawn_Position2)
-        {
-            Monster_prefabs[1].GetComponent<Far_Monster>().Monster_hpMax = far_Hp[1];
-            GameObject pre = Instantiate(Monster_prefabs[1], spawn.transform.position, spawn.transform.rotation);
+            // 몬스터 3종은 전부 Monster_Stats 를 상속한다. 프리팹마다 그 계열 컴포넌트가
+            // 하나뿐이라, 구체 타입 3개를 하나로 받아도 같은 것을 잡는다.
+            Monster_prefabs[prefabIndex].GetComponent<Monster_Stats>().Monster_hpMax = hp;
+            Instantiate(Monster_prefabs[prefabIndex], spawn.transform.position, spawn.transform.rotation);
         }
-
-        foreach (GameObject spawn in Spawn_Position3)
-        {
-            Monster_prefabs[2].GetComponent<Mosnter_Repeat>().Monster_hpMax = repeat_Hp[1];
-            GameObject pre = Instantiate(Monster_prefabs[2], spawn.transform.position, spawn.transform.rotation);
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
