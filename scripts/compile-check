@@ -3,8 +3,9 @@
 """Unity 를 열지 않고 사용자 스크립트를 컴파일해 본다.
 
 무엇을 하나
-  Assets/Scripts/ 아래 모든 .cs 를 Unity 에 딸려 오는 Mono 컴파일러(mcs)로 컴파일하고
-  오류 수를 센다. 결과 어셈블리는 버린다 - 통과 여부만 본다.
+  Assets/Scripts/ 와 Assets/Tests/ 아래 모든 .cs 를 Unity 에 딸려 오는 Mono
+  컴파일러(mcs)로 컴파일하고 오류 수를 센다. 결과 어셈블리는 버린다 - 통과 여부만 본다.
+  실행은 하지 않는다. 실행해서 보는 것은 scripts/playmode-test 다.
 
 왜 필요한가
   이 저장소에는 CI 가 없다. 컴파일 확인을 하려면 Unity 를 열고 재임포트를 기다린 뒤
@@ -38,7 +39,8 @@ EDITOR_ROOTS = [
     r"C:\Program Files\Unity\Hub\Editor",
     r"C:\Program Files (x86)\Unity\Hub\Editor",
 ]
-SOURCE_DIR = os.path.join(ROOT, "Assets", "Scripts")
+SOURCE_DIRS = [os.path.join(ROOT, "Assets", "Scripts"),
+               os.path.join(ROOT, "Assets", "Tests")]
 
 
 def find_unity_data():
@@ -49,9 +51,23 @@ def find_unity_data():
     return None
 
 
+def nunit_dll():
+    """플레이모드 테스트가 쓰는 nunit. 없으면 테스트 파일을 컴파일 대상에서 뺀다."""
+    found = glob.glob(os.path.join(ROOT, "Library", "PackageCache",
+                                   "com.unity.ext.nunit@*", "net35", "unity-custom",
+                                   "nunit.framework.dll"))
+    return sorted(found)[-1] if found else None
+
+
 def references(data):
-    """UnityEngine 모듈, 프로젝트가 이미 컴파일해 둔 패키지 어셈블리, netstandard."""
-    refs = sorted(glob.glob(os.path.join(data, "Managed", "UnityEngine", "*.dll")))
+    """BCL, UnityEngine 모듈, 프로젝트가 이미 컴파일해 둔 패키지 어셈블리, netstandard."""
+    # -noconfig 를 쓰므로 기본 참조가 하나도 안 붙는다. LINQ(System.Core)처럼
+    # Unity 라면 당연히 있는 것도 직접 넣어야 한다.
+    mono = os.path.join(data, "MonoBleedingEdge", "lib", "mono", "unityjit-win32")
+    refs = [os.path.join(mono, name) for name in ("System.dll", "System.Core.dll")]
+    refs = [r for r in refs if os.path.exists(r)]
+
+    refs += sorted(glob.glob(os.path.join(data, "Managed", "UnityEngine", "*.dll")))
 
     # Library/ScriptAssemblies 는 Unity 가 마지막으로 컴파일한 결과다. 패키지
     # 어셈블리(Localization, TextMeshPro 등)를 여기서 가져온다.
@@ -65,6 +81,10 @@ def references(data):
                                "4.7.1-api", "Facades", "netstandard.dll")
     if os.path.exists(netstandard):
         refs.append(netstandard)
+
+    nunit = nunit_dll()
+    if nunit:
+        refs.append(nunit)
     return refs
 
 
@@ -92,13 +112,14 @@ def main():
         return 2
 
     sources = []
-    for dirpath, _dirs, files in os.walk(SOURCE_DIR):
-        for f in files:
-            if f.endswith(".cs"):
-                sources.append(os.path.join(dirpath, f))
+    for root in SOURCE_DIRS:
+        for dirpath, _dirs, files in os.walk(root):
+            for f in files:
+                if f.endswith(".cs"):
+                    sources.append(os.path.join(dirpath, f))
     sources.sort()
     if not sources:
-        sys.stderr.write("컴파일할 소스가 없다: %s\n" % SOURCE_DIR)
+        sys.stderr.write("컴파일할 소스가 없다: %s\n" % " ".join(SOURCE_DIRS))
         return 2
 
     tmp = tempfile.mkdtemp(prefix="compile-check-")
@@ -110,9 +131,13 @@ def main():
     lines += ['"%s"' % s for s in sources]
     io.open(rsp, "w", encoding="utf-8").write("\n".join(lines) + "\n")
 
+    # 테스트 파일은 #if UNITY_INCLUDE_TESTS 로 감싸져 있다. nunit 이 있을 때만 정의해
+    # 컴파일 대상에 넣는다. 없으면 테스트가 통째로 빠지고 나머지는 그대로 검사된다.
+    defines = ["-define:UNITY_INCLUDE_TESTS"] if nunit_dll() else []
+
     proc = subprocess.run(
         [mcs, "-target:library", "-nostdlib", "-noconfig",
-         "-out:" + out, "-r:" + mscorlib, "@" + rsp],
+         "-out:" + out, "-r:" + mscorlib] + defines + ["@" + rsp],
         cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     text = proc.stdout.decode("utf-8", "replace")
 
