@@ -230,6 +230,75 @@ public class RefactorRuntimeTests
         Object.Destroy(unit.Player_Attacked_Effect);
     }
 
+    // ── followups 11 대응: 보스 체력이 프리팹 에셋에 쓰인다 ──────────────────
+    //
+    // Boss_Spawn 이 난이도별 체력을 이렇게 적용했다.
+    //
+    //   Boss_prefabs[3].GetComponent<Wind_Boss>().Monster_hpMax = Stage_4[0];
+    //   Instantiate(Boss_prefabs[3], ...);
+    //
+    // Boss_prefabs[3] 은 **프리팹 에셋을 가리키는 참조**다. 만들어진 인스턴스가 아니라
+    // 원본에 쓴다. 그래서 에디터에서 스테이지를 플레이하면 .prefab 파일이 실제로 바뀌고,
+    // 플레이를 끝내도 되돌아오지 않는다. 빌드에서는 프리팹이 읽기 전용이라 드러나지 않아
+    // 지금까지 눈에 띄지 않았다.
+    //
+    // 이 테스트가 보는 것은 두 가지다.
+    //   1. 인스턴스가 난이도 체력을 그대로 받는가   (고치면서 동작이 틀어지지 않았는가)
+    //   2. 프리팹 에셋이 그대로인가                 (결함이 사라졌는가)
+    // 2번이 수정 전에는 실패한다.
+
+    [UnityTest]
+    public IEnumerator BossSpawn_WritesHpToTheInstanceNotThePrefabAsset()
+    {
+        Begin();
+
+        // 난이도 대역. Boss_Spawn.Awake 가 FindObjectOfType<Mode_Select>() 를 널 검사
+        // 없이 쓴다. 실제 게임에서는 UI_Select 의 DontDestroy 오브젝트가 따라온다.
+        //
+        // 둘 다 false 로 두고 한 번 띄우는 이유는, 그래야 Boss_Spawn 이 아무것도 쓰지
+        // 않아서 **프리팹의 원래 값을 먼저 읽어 둘 수 있기** 때문이다. 값을 코드에
+        // 박아 두면 나중에 프리팹을 손봤을 때 테스트가 엉뚱한 이유로 실패한다.
+        modeStub = new GameObject("ModeSelectStub");
+        Mode_Select mode = modeStub.AddComponent<Mode_Select>();
+        mode.Easy = false;
+        mode.Hard = false;
+        Object.DontDestroyOnLoad(modeStub);
+
+        yield return LoadStage("4_StageBoss");
+
+        Boss_Spawn spawner = Object.FindObjectOfType<Boss_Spawn>();
+        Assert.IsNotNull(spawner, "4_StageBoss 에 Boss_Spawn 이 없다");
+        Assert.GreaterOrEqual(spawner.Boss_prefabs.Length, 4, "Boss_prefabs 가 4개 미만이다");
+        Assert.GreaterOrEqual(spawner.Stage_4.Length, 1, "이 씬이 Stage_4 를 채워 주지 않았다");
+
+        GameObject prefab = spawner.Boss_prefabs[3];
+        int pristine = prefab.GetComponent<Monster_Stats>().Monster_hpMax;
+        int stageHp = spawner.Stage_4[0];
+
+        Assert.IsNull(Object.FindObjectOfType<Wind_Boss>(),
+            "난이도가 둘 다 꺼져 있으면 보스가 생기지 않아야 한다");
+
+        // 전제 확인. 둘이 같으면 아래 두 단언이 동시에 참이 되어 아무것도 못 잡는다.
+        Assert.AreNotEqual(pristine, stageHp,
+            "프리팹 기본값(" + pristine + ")과 스테이지 체력(" + stageHp + ")이 같으면 이 테스트는 무의미하다");
+
+        // 이번에는 이지 난이도로 실제 소환을 돌린다.
+        mode.Easy = true;
+        yield return LoadScene("4_StageBoss");
+
+        Wind_Boss boss = Object.FindObjectOfType<Wind_Boss>();
+        Assert.IsNotNull(boss, "Boss_Spawn 이 보스를 만들지 않았다");
+
+        // 1. 동작이 그대로인가
+        Assert.AreEqual(stageHp, boss.Monster_hpMax,
+            "인스턴스가 난이도 체력을 받지 못했다");
+
+        // 2. 결함이 사라졌는가
+        Assert.AreEqual(pristine, prefab.GetComponent<Monster_Stats>().Monster_hpMax,
+            "프리팹 에셋의 Monster_hpMax 가 " + stageHp + " 로 바뀌었다. "
+            + "저장소의 WindBoss.prefab 파일이 더러워진다");
+    }
+
     // ── 도우미 ────────────────────────────────────────────────────────────────
 
     const BindingFlags Any = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -263,14 +332,15 @@ public class RefactorRuntimeTests
     // 보스는 씬에 들어 있지 않다. 4_StageBoss 가 참조하는 프리팹은 Boss_Spawn,
     // Portal, SpawnPoint 셋뿐이고 보스는 Boss_Spawn.Awake 가 만든다.
     //
-    // **그런데 Boss_Spawn 을 그대로 쓰지 않는다.** 그 코드가 이렇게 되어 있다.
+    // **그런데 Boss_Spawn 을 그대로 쓰지 않고 프리팹만 빌려 직접 세운다.**
     //
-    //   Boss_prefabs[3].GetComponent<Wind_Boss>().Monster_hpMax = Stage_4[0];
+    // 원래 이유는 결함이었다. Boss_Spawn 이 인스턴스가 아니라 프리팹 에셋에 체력을 써서
+    // 테스트를 돌릴 때마다 WindBoss.prefab 이 더러워졌다. 그 결함은 고쳤고
+    // BossSpawn_WritesHpToTheInstanceNotThePrefabAsset 이 회귀를 잡는다.
     //
-    // 인스턴스가 아니라 **프리팹 에셋에** 값을 쓴다. 프리팹의 Monster_hpMax 는 10 인데
-    // 씬이 넘기는 Stage_4[0] 은 120 이라, 에디터에서 실행하면 WindBoss.prefab 이
-    // 실제로 바뀐다. 테스트가 저장소를 더럽히면 안 되므로 프리팹만 빌려 직접 세운다.
-    // 이 결함 자체는 docs/followups.md 에 올렸다.
+    // 고친 뒤에도 직접 세우는 것을 유지한다. 여기서 보는 것은 **보스의 탄막 패턴**이지
+    // 소환 절차가 아니다. Boss_Spawn 을 거치면 Mode_Select 대역까지 딸려 와서, 패턴이
+    // 깨졌을 때 원인이 어느 쪽인지 바로 드러나지 않는다.
     static IEnumerator SpawnWindBoss(System.Action<Wind_Boss> assign)
     {
         Boss_Spawn spawner = Object.FindObjectOfType<Boss_Spawn>();
@@ -295,6 +365,26 @@ public class RefactorRuntimeTests
 
         yield return null;   // 보스의 Awake / Start 가 도는 프레임
         assign(boss);
+    }
+
+    static GameObject modeStub;
+
+    [TearDown]
+    public void TearDown()
+    {
+        // **난이도 대역만** 매 테스트 끝에 지운다. 남겨 두면 뒤 테스트가 4_StageBoss 를
+        // 띄울 때 Boss_Spawn 이 보스를 하나 더 만들고, 탄환 60발 테스트가 120발을 센다.
+        //
+        // 플레이어 대역은 여기서 지우면 안 된다. 앞 씬의 Camera_test 가 매 FixedUpdate
+        // 마다 없어진 Transform 을 참조해 예외를 쏟고, 그 로그가 다음 테스트에 귀속된다.
+        // 실제로 그것 때문에 4개가 죽었다. 아래 EnsurePlayerStub 주석 참조.
+        //
+        // 난이도 대역은 Boss_Spawn 이 Awake 에서 한 번 읽고 끝이라 이 문제가 없다.
+        if (modeStub != null)
+        {
+            Object.DestroyImmediate(modeStub);
+            modeStub = null;
+        }
     }
 
     static GameObject playerStub;

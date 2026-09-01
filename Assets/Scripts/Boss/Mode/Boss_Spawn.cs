@@ -50,9 +50,24 @@ public class Boss_Spawn : MonoBehaviour
 
         int[][] hpByStage = { Stage_1, Stage_2, Stage_3, Stage_4 };
 
+        // 체력을 **소환보다 먼저** 읽는다. 표가 비어 있으면 여기서 걸리는데, 그래야
+        // 예전처럼 보스가 만들어지기 전에 실패한다. 순서를 바꾸면 반쯤 만들어진 보스가
+        // 남는다.
+        int hp = hpByStage[stage][difficulty];
+
+        // **프리팹이 아니라 인스턴스에 쓴다.** Boss_prefabs[stage] 는 프리팹 에셋을
+        // 가리키는 참조라, 여기에 쓰면 원본이 바뀌고 플레이를 끝내도 되돌아오지 않는다.
+        //
+        // 이 순서는 지켜야 한다. 체력을 읽는 쪽은 Monster_Stats.Start 와 Boss_HpBar.Start
+        // 인데 둘 다 Start 이고 이 메서드는 Boss_Spawn.Awake 에서 불린다. Unity 는 그
+        // 프레임의 Awake 를 전부 끝낸 뒤 Start 를 돌리므로, Instantiate 직후에 써도
+        // 읽는 쪽보다 항상 먼저다.
+        //
         // 보스 4종은 전부 Basic_Boss 를 거쳐 Monster_Stats 를 상속한다. 프리팹마다 그
         // 계열 컴포넌트가 하나뿐이라, 구체 타입 4개를 하나로 받아도 같은 것을 잡는다.
-        Boss_prefabs[stage].GetComponent<Monster_Stats>().Monster_hpMax = hpByStage[stage][difficulty];
-        Instantiate(Boss_prefabs[stage], Spawn_Position1.transform.position, Spawn_Position1.transform.rotation);
+        GameObject boss = Instantiate(Boss_prefabs[stage],
+                                      Spawn_Position1.transform.position,
+                                      Spawn_Position1.transform.rotation);
+        boss.GetComponent<Monster_Stats>().Monster_hpMax = hp;
     }
 }
