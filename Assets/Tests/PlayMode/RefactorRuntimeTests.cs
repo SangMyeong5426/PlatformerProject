@@ -28,15 +28,20 @@ using UnityEngine.Localization.Settings;
 //   그 한 줄은 리팩토링에서 손대지 않은 원본 코드다.
 public class RefactorRuntimeTests
 {
-    [SetUp]
-    public void SetUp()
+    // 각 테스트 본문의 첫 줄에서 부른다.
+    //
+    // **[SetUp] 에 두면 안 된다.** 테스트 프레임워크가 테스트 본문을 시작할 때 로그
+    // 스코프를 새로 만들어서 [SetUp] 에서 설정한 ignoreFailingMessages 가 덮인다.
+    // 처음에 [SetUp] 에 뒀다가 5개가 전부 "Unhandled log message" 로 실패했다.
+    static void Begin()
     {
         // 대화 트리거가 timeScale 을 0 으로 두고 끝나면 다음 테스트의 WaitForSeconds 가
         // 영원히 안 끝난다. 테스트끼리 오염되지 않도록 매번 되돌린다.
         Time.timeScale = 1f;
 
-        // 실제 씬을 로드하므로 배선이 덜 된 오브젝트가 로그를 뱉을 수 있다.
-        // 우리가 보는 것은 로그가 아니라 상태값이다.
+        // 실제 씬을 씬 전환 없이 단독으로 로드하므로, 앞선 씬에서 넘어와야 할 것이
+        // 없어서 배선이 덜 된 오브젝트가 예외를 뱉는다. 우리가 보는 것은 로그가 아니라
+        // 상태값이다. 어떤 예외가 나오는지는 work log 에 적었다.
         LogAssert.ignoreFailingMessages = true;
     }
 
@@ -45,7 +50,9 @@ public class RefactorRuntimeTests
     [UnityTest]
     public IEnumerator BonginTalk_EnglishLinesGoToEnglishDictionary()
     {
-        yield return LoadScene("Maze_Stage");
+        Begin();
+
+        yield return LoadStage("Maze_Stage");
 
         var mgr = Object.FindObjectOfType<BonginTalkManager>();
         Assert.IsNotNull(mgr, "Maze_Stage 에 BonginTalkManager 가 없다");
@@ -66,7 +73,9 @@ public class RefactorRuntimeTests
     [UnityTest]
     public IEnumerator BonginTalk_EnglishLocaleAdvancesAndDoesNotFreeze()
     {
-        yield return LoadScene("Maze_Stage");
+        Begin();
+
+        yield return LoadStage("Maze_Stage");
         yield return SelectLocale(0);   // 0 = English (GameManager.LangENG)
 
         var mgr = Object.FindObjectOfType<BonginTalkManager>();
@@ -105,10 +114,11 @@ public class RefactorRuntimeTests
     [UnityTest]
     public IEnumerator WindBoss_BulletIsAnIndependentPattern()
     {
-        yield return LoadScene("4_StageBoss");
+        Begin();
 
-        var boss = Object.FindObjectOfType<Wind_Boss>();
-        Assert.IsNotNull(boss, "4_StageBoss 에 Wind_Boss 가 없다");
+        yield return LoadStage("4_StageBoss");
+        Wind_Boss boss = null;
+        yield return SpawnWindBoss(b => boss = b);
 
         var patterns = Patterns(boss);
 
@@ -123,10 +133,12 @@ public class RefactorRuntimeTests
     [UnityTest]
     public IEnumerator WindBoss_BulletPatternFires60Bullets()
     {
-        yield return LoadScene("4_StageBoss");
+        Begin();
 
-        var boss = Object.FindObjectOfType<Wind_Boss>();
-        Assert.IsNotNull(boss, "4_StageBoss 에 Wind_Boss 가 없다");
+        yield return LoadStage("4_StageBoss");
+        Wind_Boss boss = null;
+        yield return SpawnWindBoss(b => boss = b);
+
         Assert.IsNotNull(boss.bullet, "탄환 프리팹이 인스펙터에 연결돼 있지 않다");
 
         string cloneName = boss.bullet.name + "(Clone)";
@@ -158,6 +170,8 @@ public class RefactorRuntimeTests
     [UnityTest]
     public IEnumerator EarthBullet_ReadsItsOwnDamageNotIceWave()
     {
+        Begin();
+
         const int OwnDamage = 7;
         const int IceDamage = 3;
 
@@ -175,6 +189,7 @@ public class RefactorRuntimeTests
 
         // 플레이어 대역.
         var playerGo = new GameObject("PlayerStub");
+        playerGo.tag = "Player";            // Earth_Bullet 이 CompareTag 로 거른다
         playerGo.transform.position = origin + new Vector3(1.5f, 0f, 0f);
         playerGo.AddComponent<BoxCollider2D>();
         var playerBody = playerGo.AddComponent<Rigidbody2D>();
@@ -218,6 +233,116 @@ public class RefactorRuntimeTests
     // ── 도우미 ────────────────────────────────────────────────────────────────
 
     const BindingFlags Any = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+    // 스테이지 씬을 게임이 실제로 거치는 순서대로 띄운다.
+    //
+    // 스테이지 씬에는 플레이어도 사운드 매니저도 들어 있지 않다. 둘 다 앞 씬에서
+    // DontDestroyOnLoad 로 넘어온다. 스테이지 씬을 단독으로 로드하면
+    //
+    //   SpawnPoint.Awake      FindWithTag("Player") 가 null -> NRE
+    //   Camera_test.Start     같은 이유로 playerTransform 미할당
+    //   Basic_Boss.Start      Player_Hit / Player / Target 을 못 찾는다
+    //   Wind_Boss.SpawnBullet SfxManger.instance 가 null -> 탄환이 하나도 안 나간다
+    //   TalkManagerBase.Update PL 이 null -> 매 프레임 예외로 Update 가 중단된다
+    //
+    // 가 전부 터진다. 처음엔 스테이지만 로드했다가 이걸 다 맞았다.
+    //
+    // UI_Main 을 먼저 띄우는 이유가 사운드 매니저 같은 싱글턴을 만들기 위해서다.
+    // 플레이어는 캐릭터 선택을 거쳐야 만들어지므로 대역을 세워 넘긴다.
+    static IEnumerator LoadStage(string name)
+    {
+        // 씬을 띄우기 **전에** 세운다. UI_Main 이 로드되는 동안에도 Player 를 찾는
+        // 코드가 돌기 때문이다. 뒤에 세우면 그 사이에 예외가 난다.
+        EnsurePlayerStub();
+        yield return LoadScene("UI_Main");
+        yield return LoadScene(name);
+    }
+
+    // 보스를 세운다.
+    //
+    // 보스는 씬에 들어 있지 않다. 4_StageBoss 가 참조하는 프리팹은 Boss_Spawn,
+    // Portal, SpawnPoint 셋뿐이고 보스는 Boss_Spawn.Awake 가 만든다.
+    //
+    // **그런데 Boss_Spawn 을 그대로 쓰지 않는다.** 그 코드가 이렇게 되어 있다.
+    //
+    //   Boss_prefabs[3].GetComponent<Wind_Boss>().Monster_hpMax = Stage_4[0];
+    //
+    // 인스턴스가 아니라 **프리팹 에셋에** 값을 쓴다. 프리팹의 Monster_hpMax 는 10 인데
+    // 씬이 넘기는 Stage_4[0] 은 120 이라, 에디터에서 실행하면 WindBoss.prefab 이
+    // 실제로 바뀐다. 테스트가 저장소를 더럽히면 안 되므로 프리팹만 빌려 직접 세운다.
+    // 이 결함 자체는 docs/followups.md 에 올렸다.
+    static IEnumerator SpawnWindBoss(System.Action<Wind_Boss> assign)
+    {
+        Boss_Spawn spawner = Object.FindObjectOfType<Boss_Spawn>();
+        Assert.IsNotNull(spawner, "4_StageBoss 에 Boss_Spawn 이 없다");
+        Assert.GreaterOrEqual(spawner.Boss_prefabs.Length, 4, "Boss_prefabs 가 4개 미만이다");
+
+        GameObject point = GameObject.FindGameObjectWithTag("Boss_Spawn");
+        Assert.IsNotNull(point, "Boss_Spawn 태그를 단 소환 위치가 없다");
+
+        GameObject go = Object.Instantiate(spawner.Boss_prefabs[3],
+                                           point.transform.position, point.transform.rotation);
+        Wind_Boss boss = go.GetComponent<Wind_Boss>();
+        Assert.IsNotNull(boss, "Boss_prefabs[3] 에 Wind_Boss 가 없다");
+
+        // HP 바는 자기 Start 에서 보스를 못 찾고 이미 죽었다(FindWithTag("Monster")).
+        // 실제 게임에서는 Boss_Spawn.Awake 가 Start 보다 먼저 보스를 만들어 준다.
+        // 우리 관심사가 아니므로 꺼서 소음을 없앤다.
+        foreach (Boss_HpBar bar in Object.FindObjectsOfType<Boss_HpBar>())
+        {
+            bar.enabled = false;
+        }
+
+        yield return null;   // 보스의 Awake / Start 가 도는 프레임
+        assign(boss);
+    }
+
+    static GameObject playerStub;
+
+    // 실제 플레이어 프리팹(Player_Sword 등)을 쓰지 않는다. 플레이모드 테스트에서는
+    // 에셋을 경로로 불러올 수 없다. 대신 씬 코드가 실제로 요구하는 것만 갖춘다 -
+    // Player 태그, AllUnits.Unit, CurMapName, 그리고 Player_Hit 태그를 단 자식.
+    // Target 태그는 보스 프리팹 안에 있어서 대역이 필요 없다.
+    // 테스트마다 새로 만들지 않고 실행 내내 하나를 쓴다.
+    //
+    // 처음에는 [TearDown] 에서 지웠는데, 그러면 앞 씬의 Camera_test 가 이미 없어진
+    // Transform 을 계속 참조해서 MissingReferenceException 이 매 FixedUpdate 마다
+    // 났다. 그 로그는 **다음 테스트에 귀속되어** 그쪽을 실패시켰다. 테스트 4개가
+    // 그것 때문에 죽었다.
+    //
+    // 실제 게임에서도 플레이어는 한 번 만들어져 계속 따라다닌다. 그쪽이 맞다.
+    static void EnsurePlayerStub()
+    {
+        if (playerStub != null) return;
+
+        playerStub = new GameObject("PlayerStub");
+        playerStub.tag = "Player";
+        playerStub.AddComponent<CurMapName>();
+
+        AllUnits.Unit unit = playerStub.AddComponent<AllUnits.Unit>();
+        unit.clip_attacked = new AudioClip[0];   // 비면 SfxManger 를 안 부른다
+        unit.me = playerStub;
+        unit.Player_Attacked_Effect = new GameObject("HitEffectStub");
+        unit.Player_Attacked_Effect.transform.SetParent(playerStub.transform);
+
+        GameObject hit = new GameObject("PlayerHitStub");
+        hit.tag = "Player_Hit";
+        hit.transform.SetParent(playerStub.transform);
+
+        Object.DontDestroyOnLoad(playerStub);
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+        // 전부 끝난 뒤에만 지운다. 테스트 사이에 지우면 앞 씬이 없어진 것을 참조해
+        // 예외를 쏟는다.
+        if (playerStub != null)
+        {
+            Object.Destroy(playerStub);
+            playerStub = null;
+        }
+    }
 
     static IEnumerator LoadScene(string name)
     {
