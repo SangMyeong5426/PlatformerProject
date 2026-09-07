@@ -50,6 +50,7 @@
 | [`docs/work-log/`](docs/work-log/) | 하루치 작업에서 무엇을 했고 무엇이 어긋났는가 |
 | [`docs/followups.md`](docs/followups.md) | 지금은 판단할 근거가 없어 미뤄 둔 것 |
 | [`docs/portfolio/`](docs/portfolio/) | 위 기록들을 면접에서 설명할 형태로 정리한 것 |
+| [`docs/media/`](docs/media/) | `README.md` 에 쓰는 그림과 그 촬영 기준 |
 
 ## Unity 저장소에서 특히 주의할 것
 
