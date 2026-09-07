@@ -86,6 +86,12 @@
 링크(`Main_Backup...refactor/boss-pattern`)로 바꿨다 — 항상 맞고, 읽는 사람이 눌러서
 확인할 수도 있다.
 
+**그 링크를 상대경로 `../../compare/...` 로 썼더니 깨졌다.** GitHub 은 README 의 상대
+링크를 `/{owner}/{repo}/blob/{branch}/` 기준으로 푸는데, 디폴트 브랜치 이름이
+`refactor/boss-pattern` 이라 **경로 조각이 둘**이다. `../../` 가 두 단계를 올라가면
+`/blob/` 에서 멈춰 `/blob/compare/...` 라는 없는 주소가 된다. 절대 URL 로 바꿨다.
+**브랜치 이름에 `/` 가 들어가면 상대 링크의 단수 계산이 달라진다.**
+
 ## 하지 못한 것
 
 - **그림 세 자리가 비어 있다.** Unity 에디터로 직접 찍어야 한다 ([followups 15](../followups.md))

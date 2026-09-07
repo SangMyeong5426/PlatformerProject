@@ -41,7 +41,7 @@
 | 검증 층 | 3개 — 컴파일 / 정적 시퀀스 대조 / **실행** |
 | 없앤 클래스 | 20개 (중복 통합 + 죽은 코드) |
 | 대상 | `Assets/Scripts/` C# 134개 파일 · 약 8,000줄 |
-| 커밋 | [`Main_Backup...refactor/boss-pattern`](../../compare/Main_Backup...refactor/boss-pattern) |
+| 커밋 | [`Main_Backup...refactor/boss-pattern`](https://github.com/SangMyeong5426/PlatformerProject/compare/Main_Backup...refactor/boss-pattern) |
 
 ---
 
