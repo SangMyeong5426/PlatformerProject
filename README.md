@@ -43,16 +43,28 @@
 | 대상 | `Assets/Scripts/` C# 134개 파일 · 약 8,000줄 |
 | 커밋 | [`Main_Backup...refactor/boss-pattern`](https://github.com/SangMyeong5426/PlatformerProject/compare/Main_Backup...refactor/boss-pattern) |
 
+이 저장소는 [`seongjinyun/PlatformerProject`](https://github.com/seongjinyun/PlatformerProject)
+를 포크한 것입니다. 원본이 2023년 팀 작업물이고 그 마지막 상태가 `Main_Backup` 브랜치에
+그대로 있습니다. 지금 보고 계신 `refactor/boss-pattern` 이 2026년 작업 후이고, 둘의 차이가
+위 표의 비교 링크입니다. 2023년 코드만 보시려면 브랜치를 `Main_Backup` 으로 바꾸시면 됩니다.
+
 ---
 
 ## 게임 보기
 
-<!-- 미디어 ② 스크린샷 3~4장. 촬영 목록은 docs/media/README.md 에 있다.
-     넣을 때 이 주석을 지우고 아래 표를 살린다.
+캐릭터 3종과 난이도 2단계를 고르고 시작합니다. 본편 4스테이지를 지나며 **대지 → 얼음 →
+불 → 바람** 순으로 보스를 잡고, 잡으면 다음 스테이지 포탈이 열립니다. 그 밖에 미로
+스테이지와 보스 러시 모드가 있습니다.
 
-| 캐릭터 선택 | 스테이지 | 보스전 | 대화 |
+<!-- 미디어 ② 스크린샷 4장. 촬영 목록은 docs/media/README.md 에 있다.
+     넣을 때 이 주석을 지우고 아래 표와 설명을 살린다.
+
+| 보스전 | 캐릭터 선택 | 스테이지 | 대화 |
 | --- | --- | --- | --- |
-| ![](docs/media/select.png) | ![](docs/media/stage.png) | ![](docs/media/boss.png) | ![](docs/media/talk.png) |
+| ![](docs/media/boss.png) | ![](docs/media/select.png) | ![](docs/media/stage.png) | ![](docs/media/talk.png) |
+
+아래 검증 절이 대조하는 것이 보스전 그림의 패턴들이다. 난이도 선택은 체력을 정하는데 그
+값이 프리팹 에셋에 쓰이고 있었고, 대화창은 영어로 켜면 멈추던 자리다.
 -->
 
 <!-- TODO 플레이 가능한 빌드. WebGL(itch.io) 또는 Windows(GitHub Release) 중 결정한 뒤
@@ -69,11 +81,15 @@
 | 영역 | 제가 만든 스크립트 |
 | --- | --- |
 | 인벤토리 | `Inventory` · `InventoryUI` · `Slot` · `DropItem` · `Player_UsingItem` |
-| 대화 시스템 | `TalkManager` · `EndTalkManager` · `NPCTri` 계열 |
-| 게임 흐름 | `GameManager` · `NextScene` · `LoadingSceneController` · `DiePannel` |
-| 전역 상태 | `BoolManager` · `BoolReset` |
+| 대화 시스템 | `TalkManager` · `EndTalkManager` · `NPCTri` 계열 4개 |
+| 사운드 | `SoundManager` · `SoundCtrl` · `SfxCtrl` |
+| UI | `HPbar` · `MPbar` · `Cooltime` · `SkillManager` · `EnemyCountText` · `Boss_HpBar` |
+| 게임 흐름 | `GameManager` · `NextScene` · `LoadingSceneController` · `DiePannel` · `SpawnPoint` |
+| 전역 상태 | `BoolManager` · `BoolReset` · `Destroy` · `DestroyPL` |
 | 선택 화면 | `SelectChar` · `DataMgr` |
-| 보스 | 불 보스 · 바람 보스 |
+| 포탈 | `StagePortal` · 보스 포탈 4개 (`GroundBossPortal` 등) |
+| 봉인 | `Bongin` · `BonginTri` · `BonginTalkManager` |
+| 보스 | 불 보스 · 바람 보스 · 공통 부모 `Basic_Boss` |
 
 ```bash
 # 위 표의 근거를 직접 확인하는 방법
@@ -82,6 +98,10 @@ git log --all --no-merges --diff-filter=A --format='%an %ad' --date=short -- '*/
 
 나머지 영역(플레이어 조작, 일반 몬스터 AI, 레벨 디자인, 대지·얼음 보스)은 팀원들이
 맡았습니다. **2026년 리팩토링은 제 것이 아닌 부분까지 전부 포함합니다.**
+
+반대 방향도 있습니다. **2026년에 합친 중복의 대부분이 2023년의 제 코드입니다** — 보스 포탈
+4개, 대화 트리거 4개, 대화 매니저 3종, `Destroy`/`DestroyPL` 이 전부 위 표에 있습니다.
+`Basic_Boss` 도 제가 만들어 두고 **체력·데미지 필드만 넣은 채로 둔 자리**였습니다.
 
 ---
 
@@ -154,15 +174,97 @@ graph TD
 프리팹에서 모두 `1` 이라 플레이해도 차이가 없고, 어느 한쪽을 조정하는 순간 드러날
 결함이었습니다. 클래스 이름을 정리하며 필드 이름을 마주치기 전까지는 보이지 않았습니다.
 
-마지막 것은 제 실수입니다. 오류 판정을 `"): error "` 로 해서 **파일·행 번호가 없는 오류를
-놓치고 있었습니다.** 유일한 단서가 경고 수가 59 → 0 으로 떨어진 것이었습니다.
+마지막 것은 제가 만든 도구의 결함입니다. 아래 검증 절에 적었습니다.
 
 ---
 
 ## 검증을 어떻게 했는가
 
-**이 저장소의 핵심입니다.** CI 가 없고 테스트도 없었습니다. 그래서 검증 수단을 직접
-만들면서 진행했습니다.
+**이 저장소의 핵심입니다.** 테스트 0개, CI 없음, 원 작성자에게 물을 수 없음 — 동작을 바꾸지
+않는 리팩토링인데 **"바뀌지 않았다"고 말할 근거가 아무것도 없었습니다.** 검증 수단을 하나씩
+만들면서 진행했고, **다음 층은 언제나 앞 층이 놓친 것 때문에 생겼습니다.** 만든 순서대로
+적습니다.
+
+### 1. 정적 시퀀스 대조 — 무엇이 같아야 하는지를 먼저 정했다
+
+**"컴파일이 된다"는 검증이 아닙니다.** 보스 패턴은 `yield return new WaitForSeconds(1f)` 가
+줄줄이 이어진 코루틴이라 대기 하나를 빠뜨려도 컴파일은 멀쩡히 됩니다. 플레이해서 보는 것도
+패턴이 랜덤으로 골라져 재현이 안 됩니다.
+
+그래서 코드를 건드리기 전에 기준표를 만들었습니다. 대기 시간 · `anim` 파라미터 · SFX 키 ·
+생성과 파괴 순서를 리팩토링 직전 소스(`2f023e52`)에서 뽑아 두고, 이후 커밋마다 기계
+대조했습니다.
+
+**이 층이 못 보는 것** — 그 시퀀스가 실제로 도는지. 소스를 읽을 뿐입니다.
+
+### 2. 컴파일 검사 — 닫아 둔 에디터의 자리를 메웠다
+
+스크립트 134개를 옮기는 동안에는 **Unity 를 닫아 둬야 합니다.** 열어 두면 `.meta` 가 아직
+도착하지 않은 순간을 에디터가 보고 새 GUID 를 발급해, 그 스크립트를 쓰는 컴포넌트가 전부
+`Missing` 이 됩니다. 그래서 하루 종일 컴파일 상태를 모른 채 커밋했고, Unity 에 딸려 오는
+Mono 컴파일러(`mcs`)로 그 사이를 메웠습니다.
+
+**이 층이 못 보는 것** — 실행하면 어떻게 되는가. 이것도 소스를 읽을 뿐입니다.
+
+### 3. 실행 층 — 앞의 두 층이 놓친 것이 실제로 나왔다
+
+C단계에서 대화 매니저 셋을 나란히 놓고 읽다가 **영어 대사를 한국어 딕셔너리에 담는 코드**를
+봤습니다. `Dictionary.Add` 가 중복 키에서 예외를 던지고, 그 연쇄로 `timeScale` 이 0 인 채
+잠깁니다. **영어로 켜면 게임이 멈춥니다.**
+
+컴파일도 되고 패턴 시퀀스도 그대로였습니다. **앞의 두 층은 둘 다 통과시킵니다.** 소스를 더
+잘 읽는 도구로는 안 잡히고, 실행해야 잡힙니다.
+
+그래서 세 번째 층을 붙였습니다([ADR-0005](docs/adr/0005-batchmode-playmode-tests.md)).
+계획대로는 안 됐습니다 — 배치모드가 **라이선스 토큰 때문에 뜨지 못해** 에디터 Test Runner
+로 우회하고, 결과를 XML 로 받아 스크립트가 읽게 했습니다.
+
+**이 층이 못 보는 것** — 키 입력. 구 Input Manager 라 `Input.GetKeyDown` 을 코드로
+만들어낼 방법이 없습니다.
+
+### 4. 내가 만든 도구도 검증 대상이었다
+
+**도구가 두 번 거짓말을 했습니다.**
+
+한 번은 `FAIL` 쪽입니다. 처음 만든 패턴 대조 스크립트가 셸을 지나며 정규식의 백슬래시를
+잃어 **거짓 FAIL 5건**을 냈습니다. 하필 훅을 재정의한 보스들에서만 나서 진짜 결함처럼
+보였습니다 — **전부 실패하면 도구를 의심하지만 일부만 실패하면 그러지 않습니다.**
+
+나쁜 쪽은 `PASS` 였습니다. `compile-check` 이 테스트 파일까지 보도록 넓혔더니 **컴파일이
+통째로 죽었는데 `PASS` 를 냈습니다.** 오류 판정을 `"): error "` 로 해 놓아서 **파일·행
+번호가 없는 오류를 놓치고 있었습니다.** 유일한 단서가 경고 수가 59 → 0 으로 떨어진
+것이었고, 그걸 이상하게 여기지 않았으면 계속 통과하는 줄 알았을 것입니다.
+
+판정을 정규식으로 넓히고 **mcs 종료 코드까지** 보게 고쳤습니다. **그 뒤로는 `PASS` 가
+나왔다는 것 자체를 믿지 않습니다.**
+
+### 5. 결함을 고칠 때는 빨강 → 초록
+
+테스트를 **수정 전에** 먼저 쓰고, 고치지 않은 코드에 대고 돌려 **실패를 확인한 다음**
+고쳤습니다.
+
+```
+수정 전   FAIL BossSpawn_WritesHpToTheInstanceNotThePrefabAsset
+               Expected: 10   But was: 120
+수정 후   PASS BossSpawn_WritesHpToTheInstanceNotThePrefabAsset
+```
+
+### 6. 통과하는데 아무것도 안 보는 테스트를 막는다
+
+테스트에 **전제 확인 단언**을 넣습니다.
+
+```csharp
+Assert.AreNotEqual(pristine, stageHp,
+    "프리팹 기본값과 스테이지 체력이 같으면 이 테스트는 무의미하다");
+```
+
+이게 실제로 한 번 일했습니다. 몬스터 프리팹에 남아 있던 오염 값이 **하필 이지 난이도
+체력과 정확히 같아서**, 이지로 테스트하면 결함이 있든 없든 결과가 같았습니다.
+**결함이 만든 값이 결함을 가리고 있었습니다.**
+
+### 층 요약
+
+시간순이 아니라 **보는 범위 순**입니다.
 
 | 층 | 도구 | 무엇을 보는가 | 무엇을 **못** 보는가 |
 | --- | --- | --- | --- |
@@ -175,38 +277,6 @@ graph TD
      docs/media/README.md.
 ![playmode-test 실행](docs/media/playmode-test.gif)
 -->
-
-**"컴파일이 된다"는 검증이 아닙니다.** 동작을 바꾸지 않는 리팩토링에서는 *무엇이 같아야
-하는지* 먼저 정하고 그것을 대조해야 합니다. 그래서 두 번째 층을 만들었습니다 — 보스 패턴
-21개의 실행 시퀀스를 소스에서 뽑아 리팩토링 직전 커밋과 기계 대조합니다.
-
-그런데 **앞의 두 층은 소스를 읽을 뿐 실행하지 않습니다.** 영어 로케일 멈춤 결함이 정확히 그
-빈틈에서 나왔습니다 — 컴파일도 되고 패턴 시퀀스도 같았지만, 실행하면 예외가 났습니다.
-그래서 세 번째 층을 붙였습니다 ([ADR-0005](docs/adr/0005-batchmode-playmode-tests.md)).
-
-### 결함을 고칠 때는 빨강 → 초록
-
-테스트를 **수정 전에** 먼저 쓰고, 고치지 않은 코드에 대고 돌려 **실패를 확인한 다음**
-고쳤습니다.
-
-```
-수정 전   FAIL BossSpawn_WritesHpToTheInstanceNotThePrefabAsset
-               Expected: 10   But was: 120
-수정 후   PASS BossSpawn_WritesHpToTheInstanceNotThePrefabAsset
-```
-
-### 통과하는데 아무것도 안 보는 테스트를 막는다
-
-테스트에 **전제 확인 단언**을 넣습니다.
-
-```csharp
-Assert.AreNotEqual(pristine, stageHp,
-    "프리팹 기본값과 스테이지 체력이 같으면 이 테스트는 무의미하다");
-```
-
-이게 실제로 한 번 일했습니다. 몬스터 프리팹에 남아 있던 오염 값이 **하필 이지 난이도
-체력과 정확히 같아서**, 이지로 테스트하면 결함이 있든 없든 결과가 같았습니다.
-**결함이 만든 값이 결함을 가리고 있었습니다.**
 
 ---
 
@@ -269,7 +339,7 @@ Assert.AreNotEqual(pristine, stageHp,
 | --- | --- |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 스크립트가 어디에 무엇이 있는가 |
 | [`docs/adr/`](docs/adr/) | 되돌리기 어려운 기술 결정과 근거 (5건) |
-| [`docs/work-log/`](docs/work-log/) | 하루치 작업에서 무엇이 어긋났는가 (10편) |
+| [`docs/work-log/`](docs/work-log/) | 하루치 작업에서 무엇이 어긋났는가 (11편) |
 | [`docs/followups.md`](docs/followups.md) | 지금은 판단할 근거가 없어 미뤄 둔 것 |
 | [`docs/portfolio/`](docs/portfolio/) | 위 기록을 면접용으로 정리한 것 |
 | [`docs/media/`](docs/media/) | README 에 쓰는 그림과 그 촬영 기준 |
