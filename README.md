@@ -89,14 +89,14 @@
 | 선택 화면 | `SelectChar` · `DataMgr` |
 | 포탈 | `StagePortal` · 보스 포탈 4개 (`GroundBossPortal` 등) |
 | 봉인 | `Bongin` · `BonginTri` · `BonginTalkManager` |
-| 보스 | 불 보스 · 바람 보스 · 공통 부모 `Basic_Boss` |
+| 보스 | 불 보스 · 바람 보스 · 대지 보스 · 얼음 보스 · 공통 부모 `Basic_Boss` |
 
 ```bash
 # 위 표의 근거를 직접 확인하는 방법
 git log --all --no-merges --diff-filter=A --format='%an %ad' --date=short -- '*/Inventory.cs'
 ```
 
-나머지 영역(플레이어 조작, 일반 몬스터 AI, 레벨 디자인, 대지·얼음 보스)은 팀원들이
+나머지 영역(플레이어 조작, 일반 몬스터 AI, 레벨 디자인)은 팀원들이
 맡았습니다. **2026년 리팩토링은 제 것이 아닌 부분까지 전부 포함합니다.**
 
 반대 방향도 있습니다. **2026년에 합친 중복의 대부분이 2023년의 제 코드입니다** — 보스 포탈
